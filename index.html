@@ -1,0 +1,3605 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17120d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="구찌 암기장">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>구찌 상품 암기장</title>
+  <style>
+    :root {
+      --paper: #f5efe4;
+      --paper-deep: #e8dcc9;
+      --surface: #fffaf2;
+      --surface-strong: #fbf3e6;
+      --ink: #17120d;
+      --muted: #6f6256;
+      --line: #d5c5ad;
+      --line-strong: #b89e78;
+      --gold: #9b7137;
+      --green: #244c38;
+      --wine: #7f2f2c;
+      --amber: #a66f22;
+      --danger: #8d2525;
+      --shadow: 0 18px 48px rgba(30, 22, 12, 0.12);
+      --radius: 8px;
+      font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      background:
+        linear-gradient(180deg, rgba(255, 250, 242, 0.96), rgba(245, 239, 228, 0.98) 34%, rgba(232, 220, 201, 0.88)),
+        repeating-linear-gradient(90deg, rgba(23, 18, 13, 0.025) 0 1px, transparent 1px 7px);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .app {
+      width: min(1160px, 100%);
+      margin: 0 auto;
+      padding: 18px 14px max(42px, env(safe-area-inset-bottom));
+    }
+
+    .top {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 0 6px;
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 8vw, 4.6rem);
+      line-height: 0.9;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .brand p {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      min-height: 74px;
+      padding: 12px;
+      background: rgba(255, 250, 242, 0.74);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+      line-height: 1.1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-inline: -4px;
+      padding: 8px 4px 6px;
+      background: rgba(245, 239, 228, 0.94);
+      backdrop-filter: blur(10px);
+      scrollbar-width: thin;
+    }
+
+    .tab-button,
+    .button,
+    .icon-button,
+    .status-button,
+    .small-button {
+      min-height: 42px;
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 700;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+    }
+
+    .tab-button {
+      flex: 0 0 auto;
+      min-height: 48px;
+      padding: 0 14px;
+      white-space: nowrap;
+    }
+
+    .tab-button[aria-selected="true"],
+    .button.primary,
+    .status-button.active {
+      background: var(--ink);
+      color: var(--surface);
+    }
+
+    .button.secondary,
+    .small-button {
+      border-color: var(--line-strong);
+      background: transparent;
+    }
+
+    .button.danger,
+    .small-button.danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .button:hover,
+    .tab-button:hover,
+    .small-button:hover,
+    .status-button:hover,
+    .icon-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .view {
+      display: grid;
+      gap: 16px;
+    }
+
+    .view[hidden] {
+      display: none !important;
+    }
+
+    .panel {
+      background: rgba(255, 250, 242, 0.86);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-heading h2,
+    .section-title {
+      margin: 0;
+      font-size: 1.15rem;
+      letter-spacing: 0;
+    }
+
+    .panel-heading p,
+    .count-label {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .image-column,
+    .field-column {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .image-preview {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 318px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255, 250, 242, 0.72), rgba(232, 220, 201, 0.75)),
+        repeating-linear-gradient(45deg, rgba(23, 18, 13, 0.05) 0 1px, transparent 1px 9px);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+    }
+
+    .image-preview img {
+      width: 100%;
+      height: 100%;
+      min-height: 318px;
+      object-fit: contain;
+      background: var(--surface);
+    }
+
+    .image-preview:not(.has-image) img,
+    .image-preview.has-image .placeholder,
+    .image-preview.is-broken img {
+      display: none;
+    }
+
+    .image-preview.is-broken .broken-message {
+      display: block;
+    }
+
+    .placeholder,
+    .broken-message {
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+      padding: 22px;
+    }
+
+    .broken-message {
+      display: none;
+      color: var(--danger);
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label,
+    .field-label {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 253, 248, 0.96);
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--ink);
+      box-shadow: 0 0 0 3px rgba(23, 18, 13, 0.1);
+    }
+
+    .two-fields {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .parse-chip {
+      display: none;
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 9px;
+      border-radius: 6px;
+      background: rgba(36, 76, 56, 0.1);
+      color: var(--green);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .parse-chip.is-visible {
+      display: inline-block;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 0 15px;
+      text-decoration: none;
+    }
+
+    .small-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 10px;
+      font-size: 0.86rem;
+      text-decoration: none;
+    }
+
+    .filter-bar,
+    .mode-toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 14px;
+      background: rgba(251, 243, 230, 0.78);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .toggle-field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 253, 248, 0.8);
+      font-weight: 800;
+    }
+
+    .toggle-field input {
+      width: 18px;
+      min-height: 18px;
+      height: 18px;
+      accent-color: var(--ink);
+    }
+
+    .list-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 2px;
+    }
+
+    .product-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .product-card {
+      display: grid;
+      overflow: hidden;
+      background: rgba(255, 250, 242, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 28px rgba(30, 22, 12, 0.08);
+    }
+
+    .product-image-wrap {
+      min-height: 236px;
+      background: var(--surface-strong);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .product-image,
+    .large-study-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: var(--surface-strong);
+    }
+
+    .product-image {
+      aspect-ratio: 4 / 3;
+    }
+
+    .image-missing {
+      display: grid;
+      place-items: center;
+      min-height: 236px;
+      background:
+        linear-gradient(135deg, rgba(255, 250, 242, 0.78), rgba(232, 220, 201, 0.78)),
+        repeating-linear-gradient(45deg, rgba(23, 18, 13, 0.04) 0 1px, transparent 1px 9px);
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .product-body {
+      display: grid;
+      gap: 11px;
+      padding: 14px;
+    }
+
+    .product-title {
+      margin: 0;
+      font-size: 1.04rem;
+      line-height: 1.35;
+    }
+
+    .sub-name {
+      margin: -5px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .tag-row,
+    .price-row,
+    .card-actions,
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .tag,
+    .status-pill,
+    .price-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.9);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .tag.line-tag {
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .status-pill {
+      color: var(--ink);
+    }
+
+    .status-unknown {
+      border-color: rgba(141, 37, 37, 0.4);
+      background: rgba(141, 37, 37, 0.08);
+      color: var(--danger);
+    }
+
+    .status-unsure {
+      border-color: rgba(166, 111, 34, 0.45);
+      background: rgba(166, 111, 34, 0.1);
+      color: var(--amber);
+    }
+
+    .status-memorized {
+      border-color: rgba(36, 76, 56, 0.42);
+      background: rgba(36, 76, 56, 0.1);
+      color: var(--green);
+    }
+
+    .status-unstudied {
+      border-color: var(--line);
+      color: var(--muted);
+    }
+
+    .price-block {
+      display: grid;
+      gap: 7px;
+      padding: 10px;
+      border-radius: 6px;
+      background: rgba(232, 220, 201, 0.34);
+      border: 1px solid rgba(213, 197, 173, 0.82);
+    }
+
+    .price-row {
+      justify-content: space-between;
+    }
+
+    .price-row strong {
+      font-size: 0.98rem;
+    }
+
+    .delta {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .delta.positive {
+      color: var(--wine);
+    }
+
+    .delta.negative {
+      color: var(--green);
+    }
+
+    .status-select {
+      width: auto;
+      min-width: 118px;
+      min-height: 48px;
+      padding: 6px 9px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .study-card,
+    .quiz-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, 0.9);
+      box-shadow: var(--shadow);
+    }
+
+    .study-image-frame {
+      display: grid;
+      place-items: center;
+      min-height: 430px;
+      background: var(--surface-strong);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .large-study-image {
+      max-height: 68vh;
+      object-fit: contain;
+    }
+
+    .study-body {
+      display: grid;
+      gap: 13px;
+      padding: 16px;
+    }
+
+    .answer-box {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(232, 220, 201, 0.28);
+    }
+
+    .answer-box[hidden] {
+      display: none;
+    }
+
+    .answer-title {
+      margin: 0;
+      font-size: 1.24rem;
+      line-height: 1.38;
+    }
+
+    .memo {
+      margin: 0;
+      white-space: pre-wrap;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .status-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .status-button {
+      min-height: 48px;
+      padding: 0 8px;
+    }
+
+    .backup-notice {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid rgba(141, 37, 37, 0.35);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, 0.88);
+      box-shadow: 0 10px 26px rgba(30, 22, 12, 0.08);
+    }
+
+    .backup-notice h2 {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .backup-notice p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .backup-notice strong {
+      color: var(--danger);
+    }
+
+    .notice-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .install-button[hidden] {
+      display: none;
+    }
+
+    .hint-name {
+      font-size: 1.2rem;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .quiz-option {
+      min-height: 48px;
+      padding: 0 12px;
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      background: rgba(255, 253, 248, 0.96);
+      color: var(--ink);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .quiz-option.selected {
+      background: var(--ink);
+      color: var(--surface);
+    }
+
+    .quiz-option.correct {
+      border-color: var(--green);
+      background: rgba(36, 76, 56, 0.12);
+      color: var(--green);
+    }
+
+    .quiz-option.wrong {
+      border-color: var(--danger);
+      background: rgba(141, 37, 37, 0.1);
+      color: var(--danger);
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 210px;
+      padding: 22px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+      font-weight: 800;
+      background: rgba(255, 250, 242, 0.68);
+    }
+
+    .backup-grid {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .backup-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .backup-grid textarea {
+      min-height: 240px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .bulk-grid {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .bulk-defaults {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .bulk-textarea {
+      min-height: 310px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .bulk-result {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(232, 220, 201, 0.24);
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .bulk-result strong {
+      color: var(--ink);
+    }
+
+    .sync-grid {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .sync-status {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(232, 220, 201, 0.24);
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .sync-status strong {
+      color: var(--ink);
+    }
+
+    .sync-status.is-online {
+      border-color: rgba(36, 76, 56, 0.42);
+      background: rgba(36, 76, 56, 0.1);
+    }
+
+    .sync-status.is-warning {
+      border-color: rgba(141, 37, 37, 0.35);
+      background: rgba(141, 37, 37, 0.08);
+    }
+
+    .sync-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .sql-code {
+      max-height: 340px;
+      overflow: auto;
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #16120e;
+      color: #fff8ec;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .bookmarklet-box {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .bookmarklet-code {
+      max-height: 260px;
+      overflow: auto;
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #16120e;
+      color: #fff8ec;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .mini-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 20;
+      width: min(420px, calc(100% - 28px));
+      transform: translate(-50%, 24px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 12px 14px;
+      border-radius: 6px;
+      background: var(--ink);
+      color: var(--surface);
+      text-align: center;
+      font-weight: 800;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (min-width: 680px) {
+      .stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .two-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bulk-defaults {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mode-toolbar {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: end;
+      }
+
+      .quiz-options {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .notice-actions,
+      .backup-actions,
+      .sync-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 940px) {
+      .app {
+        padding-inline: 22px;
+      }
+
+      .form-grid {
+        grid-template-columns: minmax(300px, 0.86fr) minmax(0, 1.14fr);
+      }
+
+      .filter-bar {
+        grid-template-columns: repeat(4, minmax(140px, 1fr)) auto;
+        align-items: end;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .notice-actions {
+        grid-template-columns: auto auto 1fr;
+      }
+
+      .backup-actions {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .sync-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 10px 10px max(34px, env(safe-area-inset-bottom));
+      }
+
+      .brand {
+        display: grid;
+        align-items: start;
+        gap: 8px;
+        padding-top: 14px;
+      }
+
+      .brand h1 {
+        font-size: clamp(2.15rem, 16vw, 3.4rem);
+      }
+
+      .brand p {
+        text-align: left;
+        white-space: normal;
+        font-size: 0.88rem;
+      }
+
+      .stat {
+        min-height: 66px;
+        padding: 10px 8px;
+      }
+
+      .stat strong {
+        font-size: 1.18rem;
+      }
+
+      .stat span {
+        font-size: 0.75rem;
+      }
+
+      .panel-heading,
+      .list-head {
+        display: grid;
+        align-items: start;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .actions .button,
+      .actions .small-button,
+      .actions label.button {
+        width: 100%;
+      }
+
+      .status-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .study-image-frame {
+        min-height: 420px;
+        height: 58vh;
+      }
+
+      .image-preview {
+        min-height: 330px;
+      }
+
+      .large-study-image {
+        max-height: 74vh;
+      }
+
+      .image-preview img {
+        min-height: 330px;
+      }
+
+      .backup-grid,
+      .bulk-grid,
+      .bookmarklet-box,
+      .sync-grid,
+      .study-body {
+        padding: 12px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .app {
+        padding-inline: 8px;
+      }
+
+      .tab-button {
+        padding-inline: 12px;
+      }
+
+      .study-image-frame {
+        min-height: 390px;
+        height: 58vh;
+      }
+
+      .product-title,
+      .answer-title {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <h1>GUCCI</h1>
+        <p>상품명 · 라인 · 가격 암기장</p>
+      </div>
+
+      <section class="backup-notice" aria-label="데이터 백업 안내">
+        <div>
+          <h2>데이터 백업하기</h2>
+          <p><strong>주의:</strong> Supabase 동기화 전에는 현재 기기의 브라우저 저장소에만 저장됩니다. 모바일 크롬의 사이트 데이터나 브라우저 데이터를 삭제하면 상품이 사라질 수 있습니다.</p>
+        </div>
+        <div class="notice-actions">
+          <button class="button primary" type="button" data-view-jump="backup">JSON 백업하기</button>
+          <button class="button secondary" type="button" data-view-jump="sync">동기화 설정</button>
+          <button class="button secondary install-button" type="button" id="installAppButton" hidden>홈 화면에 추가</button>
+        </div>
+      </section>
+
+      <div class="stats" aria-label="학습 현황">
+        <div class="stat"><strong id="statTotal">0</strong><span>등록 상품</span></div>
+        <div class="stat"><strong id="statWeak">0</strong><span>오답노트</span></div>
+        <div class="stat"><strong id="statKnown">0</strong><span>외움</span></div>
+      </div>
+
+      <nav class="tabs" aria-label="주요 메뉴">
+        <button class="tab-button" type="button" data-view="register" aria-selected="true">상품 등록</button>
+        <button class="tab-button" type="button" data-view="bulk" aria-selected="false">대량등록</button>
+        <button class="tab-button" type="button" data-view="list" aria-selected="false">상품 리스트</button>
+        <button class="tab-button" type="button" data-view="flash" aria-selected="false">플래시카드</button>
+        <button class="tab-button" type="button" data-view="quiz" aria-selected="false">가격 퀴즈</button>
+        <button class="tab-button" type="button" data-view="wrong" aria-selected="false">오답노트</button>
+        <button class="tab-button" type="button" data-view="sync" aria-selected="false">동기화</button>
+        <button class="tab-button" type="button" data-view="backup" aria-selected="false">백업/복원</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="view" id="view-register">
+        <form class="panel" id="productForm">
+          <div class="panel-heading">
+            <div>
+              <h2 id="formTitle">상품 등록</h2>
+              <p id="formSubText">공개 상품 정보를 직접 입력해 저장합니다.</p>
+            </div>
+            <button class="button secondary" type="button" id="resetFormButton">초기화</button>
+          </div>
+
+          <div class="form-grid">
+            <div class="image-column">
+              <div class="image-preview" id="imagePreview">
+                <img id="previewImg" alt="상품 사진 미리보기">
+                <span class="placeholder">상품 사진</span>
+                <span class="broken-message">이미지를 불러올 수 없습니다</span>
+              </div>
+
+              <div class="field">
+                <label for="imageFile">사진 업로드</label>
+                <input id="imageFile" name="imageFile" type="file" accept="image/*">
+              </div>
+
+              <div class="field">
+                <label for="imageUrl">이미지 URL</label>
+                <input id="imageUrl" name="imageUrl" type="url" placeholder="https://...">
+              </div>
+
+              <button class="button secondary" type="button" id="clearImageButton">사진 비우기</button>
+            </div>
+
+            <div class="field-column">
+              <div class="field">
+                <label for="fullName">상품명</label>
+                <input id="fullName" name="fullName" type="text" required placeholder="[구찌 트라이베카] 라지 토트 백">
+                <span class="parse-chip" id="parseChip"></span>
+              </div>
+
+              <div class="two-fields">
+                <div class="field">
+                  <label for="lineName">라인명</label>
+                  <input id="lineName" name="lineName" type="text" list="lineOptions" placeholder="라인명 입력 또는 선택">
+                  <datalist id="lineOptions"></datalist>
+                </div>
+
+                <div class="field">
+                  <label for="category">카테고리</label>
+                  <select id="category" name="category">
+                    <option value="Bag">Bag</option>
+                    <option value="SLG">SLG</option>
+                    <option value="Shoes">Shoes</option>
+                    <option value="RTW">RTW</option>
+                    <option value="Belt">Belt</option>
+                    <option value="Jewelry">Jewelry</option>
+                    <option value="Silk">Silk</option>
+                    <option value="Travel">Travel</option>
+                    <option value="기타">기타</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="two-fields">
+                <div class="field">
+                  <label for="gender">성별</label>
+                  <select id="gender" name="gender">
+                    <option value="Women">Women</option>
+                    <option value="Men">Men</option>
+                    <option value="Unisex">Unisex</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="productUrl">상품 URL</label>
+                  <input id="productUrl" name="productUrl" type="url" placeholder="https://www.gucci.com/...">
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="currentPrice">현재가</label>
+                <input id="currentPrice" name="currentPrice" type="text" inputmode="numeric" placeholder="4,200,000">
+              </div>
+
+              <div class="field">
+                <label for="memo">메모</label>
+                <textarea id="memo" name="memo" placeholder="소재, 컬러, 시즌, 암기 포인트"></textarea>
+              </div>
+
+              <div class="actions">
+                <button class="button primary" type="submit" id="saveButton">저장</button>
+                <button class="button secondary" type="button" data-view-jump="list">리스트 보기</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="view" id="view-list" hidden>
+        <div class="filter-bar" aria-label="상품 필터">
+          <div class="field">
+            <label for="filterGender">성별</label>
+            <select id="filterGender">
+              <option value="all">전체</option>
+              <option value="Women">Women</option>
+              <option value="Men">Men</option>
+              <option value="Unisex">Unisex</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filterCategory">카테고리</label>
+            <select id="filterCategory">
+              <option value="all">전체</option>
+              <option value="Bag">Bag</option>
+              <option value="SLG">SLG</option>
+              <option value="Shoes">Shoes</option>
+              <option value="RTW">RTW</option>
+              <option value="Belt">Belt</option>
+              <option value="Jewelry">Jewelry</option>
+              <option value="Silk">Silk</option>
+              <option value="Travel">Travel</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filterLine">라인명</label>
+            <select id="filterLine">
+              <option value="all">전체</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filterStatus">암기상태</label>
+            <select id="filterStatus">
+              <option value="all">전체</option>
+              <option value="unstudied">미학습</option>
+              <option value="unknown">모름</option>
+              <option value="unsure">헷갈림</option>
+              <option value="memorized">외움</option>
+            </select>
+          </div>
+
+          <button class="button secondary" type="button" id="clearFiltersButton">필터 초기화</button>
+        </div>
+
+        <div class="list-head">
+          <div>
+            <h2 class="section-title">상품 리스트</h2>
+            <p class="count-label" id="listCount">0개 표시</p>
+          </div>
+          <button class="button primary" type="button" data-view-jump="register">상품 추가</button>
+        </div>
+
+        <div class="product-grid" id="productList"></div>
+      </section>
+
+      <section class="view" id="view-flash" hidden>
+        <div class="mode-toolbar">
+          <div class="field">
+            <label for="flashPool">출제 범위</label>
+            <select id="flashPool">
+              <option value="all">전체 상품</option>
+              <option value="filtered">현재 필터</option>
+              <option value="weak">오답노트</option>
+            </select>
+          </div>
+          <button class="button primary" type="button" id="flashNextButton">랜덤 출제</button>
+        </div>
+
+        <div id="flashCard"></div>
+      </section>
+
+      <section class="view" id="view-quiz" hidden>
+        <div class="mode-toolbar">
+          <div class="field">
+            <label for="quizPool">출제 범위</label>
+            <select id="quizPool">
+              <option value="all">전체 상품</option>
+              <option value="filtered">현재 필터</option>
+              <option value="weak">오답노트</option>
+            </select>
+          </div>
+          <button class="button primary" type="button" id="quizNextButton">랜덤 출제</button>
+        </div>
+
+        <div id="quizCard"></div>
+      </section>
+
+      <section class="view" id="view-wrong" hidden>
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>오답노트</h2>
+              <p id="wrongCount">0개 상품</p>
+            </div>
+            <div class="actions">
+              <button class="button primary" type="button" data-action="start-wrong-flash">플래시카드</button>
+              <button class="button secondary" type="button" data-action="start-wrong-quiz">가격 퀴즈</button>
+            </div>
+          </div>
+        </div>
+        <div class="product-grid" id="wrongList"></div>
+      </section>
+
+      <section class="view" id="view-bulk" hidden>
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>대량등록</h2>
+              <p>텍스트, CSV/TSV, JSON을 붙여넣어 기존 상품에 병합합니다.</p>
+            </div>
+          </div>
+
+          <div class="bulk-grid">
+            <div class="bulk-defaults">
+              <div class="field">
+                <label for="bulkCategory">공통 카테고리</label>
+                <select id="bulkCategory">
+                  <option value="Bag">Bag</option>
+                  <option value="SLG">SLG</option>
+                  <option value="Shoes">Shoes</option>
+                  <option value="RTW">RTW</option>
+                  <option value="Belt">Belt</option>
+                  <option value="Jewelry">Jewelry</option>
+                  <option value="Silk">Silk</option>
+                  <option value="Travel">Travel</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="bulkGender">공통 성별</label>
+                <select id="bulkGender">
+                  <option value="Women">Women</option>
+                  <option value="Men">Men</option>
+                  <option value="Unisex">Unisex</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="bulkText">대량등록 내용</label>
+              <textarea class="bulk-textarea" id="bulkText" spellcheck="false" placeholder="[구찌 트라이베카] 라지 토트 백&#10;₩2,880,000&#10;&#10;fullName,price,imageUrl,productUrl,category,gender&#10;[구찌 트라이베카] 라지 토트 백,2880000,https://...,https://...,Bag,Men"></textarea>
+            </div>
+
+            <div class="actions">
+              <button class="button primary" type="button" id="bulkImportButton">대량등록 실행</button>
+              <button class="button secondary" type="button" id="bulkPreviewButton">미리 파싱</button>
+              <label class="button secondary" for="bulkJsonFile">JSON 파일 선택</label>
+              <input class="sr-only" id="bulkJsonFile" type="file" accept="application/json,.json">
+              <button class="button secondary" type="button" id="clearBulkButton">내용 비우기</button>
+            </div>
+
+            <div class="bulk-result" id="bulkResult">붙여넣은 내용을 자동으로 판별합니다.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>북마클릿 코드 보기</h2>
+              <p>공개 상품 리스트 페이지에서 직접 실행해 현재 보이는 상품만 JSON으로 저장합니다.</p>
+            </div>
+            <button class="button secondary" type="button" id="copyBookmarkletButton">코드 복사</button>
+          </div>
+          <div class="bookmarklet-box">
+            <pre class="bookmarklet-code" id="bookmarkletCode"></pre>
+            <ul class="mini-list">
+              <li>즐겨찾기 URL 위치에 위 코드를 넣어 저장하세요.</li>
+              <li>공식몰에서 직접 보고 있는 공개 페이지의 현재 로드된 상품만 추출합니다.</li>
+              <li>자동 순회, 로그인 우회, 캡차 우회 기능은 포함하지 않았습니다.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-backup" hidden>
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>JSON 백업/복원</h2>
+              <p>현재 브라우저에 저장된 상품 데이터를 관리합니다.</p>
+            </div>
+          </div>
+
+          <div class="backup-grid">
+            <div class="actions backup-actions">
+              <button class="button primary" type="button" id="downloadJsonButton">JSON 다운로드</button>
+              <button class="button secondary" type="button" id="makeJsonButton">JSON 만들기</button>
+              <label class="button secondary" for="importJsonFile">JSON 파일 선택</label>
+              <input class="sr-only" id="importJsonFile" type="file" accept="application/json,.json">
+              <button class="button danger" type="button" id="clearAllButton">전체 삭제</button>
+            </div>
+
+            <div class="field">
+              <label for="backupText">JSON</label>
+              <textarea id="backupText" spellcheck="false" placeholder='{"products":[]}'></textarea>
+            </div>
+
+            <div class="actions">
+              <button class="button primary" type="button" id="restoreJsonButton">복원</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-sync" hidden>
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Supabase 동기화</h2>
+              <p>컴퓨터와 핸드폰에서 같은 상품 데이터를 사용합니다.</p>
+            </div>
+          </div>
+
+          <div class="sync-grid">
+            <div class="sync-status" id="syncStatusBox">
+              <div><strong id="syncStatusText">Supabase 설정 전</strong></div>
+              <div id="syncStatusDetail">설정 전에는 이 기기의 localStorage에만 저장됩니다.</div>
+            </div>
+
+            <div class="two-fields">
+              <div class="field">
+                <label for="supabaseUrl">Supabase URL</label>
+                <input id="supabaseUrl" type="url" placeholder="https://프로젝트.supabase.co">
+              </div>
+              <div class="field">
+                <label for="supabaseAnonKey">SUPABASE_PUBLISHABLE_KEY / ANON_KEY</label>
+                <input id="supabaseAnonKey" type="password" autocomplete="off" placeholder="publishable 또는 anon public key">
+              </div>
+            </div>
+
+            <div class="two-fields">
+              <div class="field">
+                <label for="supabaseEmail">로그인 이메일</label>
+                <input id="supabaseEmail" type="email" autocomplete="username" placeholder="me@example.com">
+              </div>
+              <div class="field">
+                <label for="supabasePassword">비밀번호</label>
+                <input id="supabasePassword" type="password" autocomplete="current-password" placeholder="Supabase Auth 비밀번호">
+              </div>
+            </div>
+
+            <div class="sync-actions">
+              <button class="button secondary" type="button" id="saveSupabaseConfigButton">설정 저장</button>
+              <button class="button secondary" type="button" id="signupSupabaseButton">회원가입</button>
+              <button class="button primary" type="button" id="loginSupabaseButton">로그인</button>
+              <button class="button secondary" type="button" id="logoutSupabaseButton">로그아웃</button>
+              <button class="button primary" type="button" id="pullSupabaseButton">Supabase에서 불러오기</button>
+              <button class="button secondary" type="button" id="pushSupabaseButton">localStorage 데이터를 Supabase로 업로드</button>
+              <button class="button secondary" type="button" id="backupSupabaseLocalButton">Supabase 데이터를 localStorage로 백업</button>
+              <button class="button secondary" type="button" id="copySupabaseSqlButton">테이블 SQL 복사</button>
+            </div>
+
+            <div class="sync-status is-warning">
+              <div><strong>service_role key는 절대 입력하지 마세요.</strong></div>
+              <div>브라우저에 넣는 키는 SUPABASE_PUBLISHABLE_KEY 또는 ANON_KEY처럼 공개 가능한 키만 사용합니다.</div>
+            </div>
+
+            <div class="sync-status is-warning">
+              <div><strong>이미지 파일 업로드는 이번 단계에서 제외됩니다.</strong></div>
+              <div>Supabase에는 이미지 URL만 저장합니다. 사진 업로드로 넣은 data URL 이미지는 이 기기의 localStorage에만 남습니다.</div>
+            </div>
+
+            <div class="field">
+              <label for="supabaseSql">Supabase SQL</label>
+              <pre class="sql-code" id="supabaseSql"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const STORAGE_KEY = "gucci-product-memory-v1";
+      const SUPABASE_CONFIG_KEY = "gucci-product-memory-supabase-config-v1";
+      const STATUS_META = {
+        unstudied: { label: "미학습", className: "status-unstudied" },
+        unknown: { label: "모름", className: "status-unknown" },
+        unsure: { label: "헷갈림", className: "status-unsure" },
+        memorized: { label: "외움", className: "status-memorized" }
+      };
+      const VALID_STATUSES = Object.keys(STATUS_META);
+
+      const state = {
+        products: [],
+        editingId: null,
+        currentImage: "",
+        lineWasManual: false,
+        lastAutoLine: "",
+        flash: { id: null, revealed: false },
+        quiz: { id: null, revealed: false, selectedPrice: 0, options: [] },
+        sync: {
+          client: null,
+          url: "",
+          anonKey: "",
+          userEmail: "",
+          userId: "",
+          sessionReady: false,
+          lastSyncAt: "",
+          lastError: ""
+        }
+      };
+      let deferredInstallPrompt = null;
+
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+      document.addEventListener("DOMContentLoaded", init);
+
+      async function init() {
+        setupPwaMetadata();
+        setupInstallPrompt();
+        state.products = loadProducts();
+        loadSupabaseSettings();
+        initializeSupabaseClient();
+        bindEvents();
+        await refreshSupabaseSessionState(false);
+        renderSyncPanel();
+        syncRegisterCategoryOptions();
+        syncBulkCategoryOptions();
+        syncFilterCategoryOptions();
+        renderAll();
+        showView(getInitialView());
+        resetForm();
+        if (canUseSupabase()) {
+          await syncFromSupabaseOnStart();
+        }
+      }
+
+      function bindEvents() {
+        $$(".tab-button").forEach((button) => {
+          button.addEventListener("click", () => showView(button.dataset.view));
+        });
+
+        $$("[data-view-jump]").forEach((button) => {
+          button.addEventListener("click", () => showView(button.dataset.viewJump));
+        });
+
+        $("#productForm").addEventListener("submit", handleSubmit);
+        $("#resetFormButton").addEventListener("click", resetForm);
+        $("#clearImageButton").addEventListener("click", clearImage);
+        $("#fullName").addEventListener("input", handleNameInput);
+        $("#lineName").addEventListener("input", handleLineInput);
+        $("#gender").addEventListener("change", syncRegisterCategoryOptions);
+        $("#imageFile").addEventListener("change", handleImageFile);
+        $("#imageUrl").addEventListener("input", handleImageUrl);
+        $("#previewImg").addEventListener("load", () => $("#imagePreview").classList.remove("is-broken"));
+        $("#previewImg").addEventListener("error", () => $("#imagePreview").classList.add("is-broken"));
+
+        ["filterGender", "filterCategory", "filterLine", "filterStatus"].forEach((id) => {
+          $("#" + id).addEventListener("change", () => {
+            if (id === "filterGender") syncFilterCategoryOptions();
+            state.flash.id = null;
+            state.quiz.id = null;
+            renderList();
+          });
+        });
+
+        $("#clearFiltersButton").addEventListener("click", clearFilters);
+        $("#flashNextButton").addEventListener("click", () => drawFlashCard());
+        $("#flashPool").addEventListener("change", () => drawFlashCard());
+        $("#quizNextButton").addEventListener("click", () => drawQuizCard());
+        $("#quizPool").addEventListener("change", () => drawQuizCard());
+        $("#downloadJsonButton").addEventListener("click", downloadJson);
+        $("#makeJsonButton").addEventListener("click", makeJsonText);
+        $("#restoreJsonButton").addEventListener("click", restoreFromTextarea);
+        $("#importJsonFile").addEventListener("change", importJsonFile);
+        $("#clearAllButton").addEventListener("click", clearAllProducts);
+        $("#bulkImportButton").addEventListener("click", importBulkProducts);
+        $("#bulkPreviewButton").addEventListener("click", previewBulkProducts);
+        $("#bulkJsonFile").addEventListener("change", importBulkJsonFile);
+        $("#clearBulkButton").addEventListener("click", clearBulkInput);
+        $("#bulkGender").addEventListener("change", syncBulkCategoryOptions);
+        $("#copyBookmarkletButton").addEventListener("click", copyBookmarkletCode);
+        $("#saveSupabaseConfigButton").addEventListener("click", saveSupabaseConfigFromForm);
+        $("#signupSupabaseButton").addEventListener("click", signUpSupabase);
+        $("#loginSupabaseButton").addEventListener("click", loginSupabase);
+        $("#logoutSupabaseButton").addEventListener("click", logoutSupabase);
+        $("#pullSupabaseButton").addEventListener("click", () => pullProductsFromSupabase({ forceReplace: true, showSuccess: true }));
+        $("#pushSupabaseButton").addEventListener("click", pushLocalProductsToSupabase);
+        $("#backupSupabaseLocalButton").addEventListener("click", backupSupabaseToLocalStorage);
+        $("#copySupabaseSqlButton").addEventListener("click", copySupabaseSql);
+        $("#bookmarkletCode").textContent = buildBookmarkletCode();
+        $("#supabaseSql").textContent = buildSupabaseSql();
+
+        document.addEventListener("click", handleDocumentClick);
+        document.addEventListener("change", handleDocumentChange);
+        window.addEventListener("hashchange", () => showView(getInitialView(), false));
+      }
+
+      function setupPwaMetadata() {
+        try {
+          const icons = [192, 512].map((size) => ({
+            src: createPwaIcon(size),
+            sizes: size + "x" + size,
+            type: "image/png",
+            purpose: "any maskable"
+          }));
+          const startUrl = window.location.href.split("#")[0] + "#list";
+          const manifest = {
+            name: "구찌 상품 암기장",
+            short_name: "구찌 암기장",
+            description: "구찌 상품명과 가격을 암기하는 개인용 앱",
+            lang: "ko",
+            start_url: startUrl,
+            scope: window.location.href.split("#")[0],
+            display: "standalone",
+            orientation: "portrait",
+            background_color: "#f5efe4",
+            theme_color: "#17120d",
+            categories: ["productivity", "education"],
+            icons
+          };
+          const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+          const manifestUrl = URL.createObjectURL(blob);
+          upsertHeadLink("manifest", manifestUrl);
+          upsertHeadLink("apple-touch-icon", icons[0].src);
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+
+      function createPwaIcon(size) {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const context = canvas.getContext("2d");
+        context.fillStyle = "#17120d";
+        context.fillRect(0, 0, size, size);
+        context.fillStyle = "#f5efe4";
+        context.fillRect(size * 0.08, size * 0.08, size * 0.84, size * 0.84);
+        context.strokeStyle = "#9b7137";
+        context.lineWidth = Math.max(6, size * 0.035);
+        context.strokeRect(size * 0.15, size * 0.15, size * 0.7, size * 0.7);
+        context.fillStyle = "#17120d";
+        context.font = "700 " + Math.round(size * 0.46) + "px Georgia, serif";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText("G", size / 2, size * 0.53);
+        return canvas.toDataURL("image/png");
+      }
+
+      function upsertHeadLink(rel, href) {
+        let link = document.head.querySelector('link[rel="' + rel + '"]');
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = rel;
+          document.head.appendChild(link);
+        }
+        link.href = href;
+      }
+
+      function setupInstallPrompt() {
+        const installButton = $("#installAppButton");
+        if (!installButton) return;
+        window.addEventListener("beforeinstallprompt", (event) => {
+          event.preventDefault();
+          deferredInstallPrompt = event;
+          installButton.hidden = false;
+        });
+        window.addEventListener("appinstalled", () => {
+          deferredInstallPrompt = null;
+          installButton.hidden = true;
+          showToast("홈 화면에 추가했습니다.");
+        });
+        installButton.addEventListener("click", async () => {
+          if (!deferredInstallPrompt) {
+            showToast("브라우저 메뉴에서 홈 화면에 추가를 선택해 주세요.");
+            return;
+          }
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          installButton.hidden = true;
+        });
+      }
+
+      function loadSupabaseSettings() {
+        try {
+          const config = JSON.parse(localStorage.getItem(SUPABASE_CONFIG_KEY) || "{}");
+          state.sync.url = cleanSupabaseUrl(config.url || "");
+          state.sync.anonKey = cleanString(config.anonKey || "");
+          state.sync.lastSyncAt = cleanString(config.lastSyncAt || "");
+          state.sync.lastError = cleanString(config.lastError || "");
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+
+      function persistSupabaseConfig() {
+        localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify({
+          url: state.sync.url,
+          anonKey: state.sync.anonKey,
+          lastSyncAt: state.sync.lastSyncAt,
+          lastError: state.sync.lastError
+        }));
+      }
+
+      function initializeSupabaseClient() {
+        state.sync.client = null;
+        state.sync.sessionReady = false;
+        if (!state.sync.url || !state.sync.anonKey) return false;
+        if (!window.supabase || typeof window.supabase.createClient !== "function") {
+          state.sync.lastError = "Supabase JS CDN을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.";
+          persistSupabaseConfig();
+          return false;
+        }
+        state.sync.client = window.supabase.createClient(state.sync.url, state.sync.anonKey, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storageKey: "gucci-product-memory-supabase-auth-v1"
+          }
+        });
+        state.sync.sessionReady = true;
+        state.sync.client.auth.onAuthStateChange((_event, session) => {
+          applySupabaseSession(session);
+          renderSyncPanel();
+          if (session && (_event === "SIGNED_IN" || _event === "TOKEN_REFRESHED")) {
+            pullProductsFromSupabase({ forceReplace: false, showSuccess: false });
+          }
+        });
+        return true;
+      }
+
+      async function refreshSupabaseSessionState(showError) {
+        if (!state.sync.client) return false;
+        try {
+          const { data, error } = await state.sync.client.auth.getSession();
+          if (error) throw error;
+          applySupabaseSession(data.session);
+          return Boolean(data.session);
+        } catch (error) {
+          if (showError) warnSyncFailure("Supabase 로그인 세션을 확인하지 못했습니다.", error);
+          return false;
+        }
+      }
+
+      function applySupabaseSession(session) {
+        const user = session && session.user ? session.user : null;
+        state.sync.userEmail = user ? cleanString(user.email) : "";
+        state.sync.userId = user ? cleanString(user.id) : "";
+      }
+
+      function renderSyncPanel() {
+        const statusBox = $("#syncStatusBox");
+        if (!statusBox) return;
+
+        $("#supabaseUrl").value = state.sync.url;
+        $("#supabaseAnonKey").value = state.sync.anonKey;
+        $("#supabaseEmail").value = state.sync.userEmail;
+        $("#supabaseSql").textContent = buildSupabaseSql();
+
+        statusBox.classList.remove("is-online", "is-warning");
+        let title = "Supabase 설정 전";
+        let detail = "설정 전에는 이 기기의 localStorage에만 저장됩니다.";
+
+        if (!window.supabase) {
+          title = "Supabase JS 로드 대기";
+          detail = "인터넷 연결이 되면 CDN으로 Supabase JS를 불러옵니다. 오프라인에서는 localStorage만 사용합니다.";
+          statusBox.classList.add("is-warning");
+        } else if (canUseSupabase()) {
+          title = "로그인됨";
+          detail = (state.sync.userEmail || "Supabase 사용자") + " 계정으로 동기화합니다.";
+          if (state.sync.lastSyncAt) detail += " 마지막 동기화: " + formatDateTime(state.sync.lastSyncAt);
+          statusBox.classList.add("is-online");
+        } else if (state.sync.client) {
+          title = "설정 저장됨 · 로그인 필요";
+          detail = "회원가입 또는 로그인 후 Supabase products 테이블과 동기화합니다.";
+          statusBox.classList.add("is-warning");
+        } else if (state.sync.url && state.sync.anonKey) {
+          title = "설정 저장됨 · 클라이언트 초기화 실패";
+          detail = "SUPABASE_URL과 publishable/anon key를 다시 확인해 주세요.";
+          statusBox.classList.add("is-warning");
+        }
+
+        if (state.sync.lastError) {
+          detail += " 최근 오류: " + state.sync.lastError;
+          statusBox.classList.add("is-warning");
+        }
+
+        $("#syncStatusText").textContent = title;
+        $("#syncStatusDetail").textContent = detail;
+      }
+
+      function saveSupabaseConfigFromForm() {
+        const url = cleanSupabaseUrl($("#supabaseUrl").value);
+        const anonKey = cleanString($("#supabaseAnonKey").value);
+        if (!url || !anonKey) {
+          showToast("Supabase URL과 publishable/anon key를 입력하세요.");
+          return false;
+        }
+        if (/service[_-]?role/i.test(anonKey)) {
+          alert("service_role key는 절대 브라우저 앱에 넣으면 안 됩니다. publishable key 또는 anon key만 입력하세요.");
+          return false;
+        }
+        const configChanged = state.sync.url !== url || state.sync.anonKey !== anonKey;
+        state.sync.url = url;
+        state.sync.anonKey = anonKey;
+        state.sync.lastError = "";
+        if (configChanged) {
+          state.sync.userEmail = "";
+          state.sync.userId = "";
+          state.sync.lastSyncAt = "";
+        }
+        persistSupabaseConfig();
+        initializeSupabaseClient();
+        renderSyncPanel();
+        showToast("Supabase 설정을 저장했습니다.");
+        return true;
+      }
+
+      async function signUpSupabase() {
+        if (!saveSupabaseConfigFromForm() || !state.sync.client) return;
+        const email = cleanString($("#supabaseEmail").value);
+        const password = $("#supabasePassword").value;
+        if (!email || !password) {
+          showToast("회원가입 이메일과 비밀번호를 입력하세요.");
+          return;
+        }
+        try {
+          setSyncBusy("Supabase 회원가입 중입니다.");
+          const { data, error } = await state.sync.client.auth.signUp({ email, password });
+          if (error) throw error;
+          applySupabaseSession(data.session);
+          $("#supabasePassword").value = "";
+          renderSyncPanel();
+          showToast(data.session ? "회원가입 후 로그인되었습니다." : "회원가입 요청을 보냈습니다. 이메일 확인 설정을 확인하세요.");
+        } catch (error) {
+          warnSyncFailure("Supabase 회원가입에 실패했습니다.", error);
+        }
+      }
+
+      async function loginSupabase() {
+        if (!saveSupabaseConfigFromForm() || !state.sync.client) return;
+        const email = cleanString($("#supabaseEmail").value);
+        const password = $("#supabasePassword").value;
+        if (!email || !password) {
+          showToast("로그인 이메일과 비밀번호를 입력하세요.");
+          return;
+        }
+
+        try {
+          setSyncBusy("Supabase 로그인 중입니다.");
+          const { data, error } = await state.sync.client.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          applySupabaseSession(data.session);
+          $("#supabasePassword").value = "";
+          renderSyncPanel();
+          showToast("Supabase에 로그인했습니다.");
+          await pullProductsFromSupabase({ forceReplace: false, showSuccess: true });
+        } catch (error) {
+          warnSyncFailure("Supabase 로그인에 실패했습니다.", error);
+        }
+      }
+
+      async function logoutSupabase() {
+        if (state.sync.client) {
+          await state.sync.client.auth.signOut();
+        }
+        state.sync.userEmail = "";
+        state.sync.userId = "";
+        state.sync.lastError = "";
+        renderSyncPanel();
+        showToast("Supabase에서 로그아웃했습니다.");
+      }
+
+      async function syncFromSupabaseOnStart() {
+        try {
+          await pullProductsFromSupabase({ forceReplace: false, showSuccess: false });
+        } catch (error) {
+          warnSyncFailure("앱 시작 시 Supabase 데이터를 불러오지 못했습니다. localStorage 데이터를 유지합니다.", error);
+        }
+      }
+
+      async function fetchSupabaseProducts() {
+        const client = getSupabaseClientOrWarn();
+        if (!client) return [];
+        const { data, error } = await client
+          .from("products")
+          .select("*")
+          .eq("user_id", state.sync.userId)
+          .order("updated_at", { ascending: false });
+        if (error) throw error;
+        return Array.isArray(data) ? data.map(supabaseRowToProduct).filter((product) => product.fullName) : [];
+      }
+
+      async function pullProductsFromSupabase(options = {}) {
+        if (!canUseSupabase()) {
+          showToast("Supabase 로그인 후 사용할 수 있습니다.");
+          return false;
+        }
+        const forceReplace = Boolean(options.forceReplace);
+        const showSuccess = Boolean(options.showSuccess);
+
+        try {
+          setSyncBusy("Supabase에서 상품을 불러오는 중입니다.");
+          const remoteProducts = await fetchSupabaseProducts();
+
+          if (!remoteProducts.length && state.products.length && !forceReplace) {
+            state.sync.lastError = "Supabase에 상품이 없어 로컬 데이터를 유지했습니다.";
+            persistSupabaseConfig();
+            renderSyncPanel();
+            if (showSuccess) showToast("Supabase가 비어 있어 로컬 데이터를 유지했습니다.");
+            return true;
+          }
+
+          if (!remoteProducts.length && state.products.length && forceReplace) {
+            if (!confirm("Supabase에 상품이 없습니다. 현재 localStorage 상품을 비울까요?")) {
+              renderSyncPanel();
+              return false;
+            }
+          }
+
+          state.products = remoteProducts;
+          state.flash.id = null;
+          state.quiz.id = null;
+          persistProducts();
+          markSupabaseSynced();
+          renderAll();
+          renderSyncPanel();
+          if (showSuccess) showToast(remoteProducts.length + "개 상품을 Supabase에서 불러왔습니다.");
+          return true;
+        } catch (error) {
+          warnSyncFailure("Supabase에서 상품을 불러오지 못했습니다. localStorage 데이터를 유지합니다.", error);
+          return false;
+        }
+      }
+
+      async function backupSupabaseToLocalStorage() {
+        if (!canUseSupabase()) {
+          showToast("Supabase 로그인 후 사용할 수 있습니다.");
+          return false;
+        }
+        try {
+          setSyncBusy("Supabase 데이터를 localStorage로 백업 중입니다.");
+          const remoteProducts = await fetchSupabaseProducts();
+          state.products = remoteProducts;
+          state.flash.id = null;
+          state.quiz.id = null;
+          persistProducts();
+          markSupabaseSynced();
+          renderAll();
+          showToast(remoteProducts.length + "개 상품을 localStorage에 백업했습니다.");
+          return true;
+        } catch (error) {
+          warnSyncFailure("Supabase 데이터를 localStorage로 백업하지 못했습니다.", error);
+          return false;
+        }
+      }
+
+      async function pushLocalProductsToSupabase() {
+        if (!canUseSupabase()) {
+          showToast("Supabase 로그인 후 사용할 수 있습니다.");
+          return false;
+        }
+        if (!state.products.length) {
+          showToast("업로드할 상품이 없습니다.");
+          return false;
+        }
+        const ok = await syncProductsToSupabase(state.products, "localStorage 데이터를 Supabase에 업로드하지 못했습니다.");
+        if (ok) {
+          showToast(state.products.length + "개 상품을 Supabase에 업로드했습니다.");
+        }
+        return ok;
+      }
+
+      async function syncProductToSupabase(product, warningMessage) {
+        if (!canUseSupabase()) return true;
+        return syncProductsToSupabase([product], warningMessage);
+      }
+
+      async function syncProductsToSupabase(products, warningMessage) {
+        if (!canUseSupabase()) return true;
+        const client = getSupabaseClientOrWarn();
+        if (!client) return false;
+        try {
+          const existingRows = await fetchSupabaseRowsForDedupe();
+          const existingByKey = new Map(existingRows.map((row) => [supabaseRowDuplicateKey(row), row]));
+          const rows = [];
+          let localIdsChanged = false;
+
+          products.forEach((product) => {
+            const oldId = product.id;
+            const prepared = ensureProductUuid(product);
+            if (prepared.id !== oldId) localIdsChanged = true;
+            const row = productToSupabaseRow(prepared);
+            const duplicate = existingByKey.get(supabaseRowDuplicateKey(row));
+            if (duplicate && duplicate.id !== row.id) {
+              updateLocalProductId(row.id, duplicate.id);
+              row.id = duplicate.id;
+              prepared.id = duplicate.id;
+              localIdsChanged = true;
+            }
+            rows.push(row);
+            existingByKey.set(supabaseRowDuplicateKey(row), row);
+          });
+
+          const uniqueRows = Array.from(new Map(rows.map((row) => [row.id, row])).values());
+          if (!uniqueRows.length) return true;
+          const { error } = await client.from("products").upsert(uniqueRows, { onConflict: "id" });
+          if (error) throw error;
+          if (localIdsChanged) {
+            persistProducts();
+            renderAll();
+          }
+          markSupabaseSynced();
+          return true;
+        } catch (error) {
+          warnSyncFailure(warningMessage || "Supabase 저장에 실패했습니다. localStorage에는 남아 있습니다.", error);
+          return false;
+        }
+      }
+
+      async function fetchSupabaseRowsForDedupe() {
+        const client = getSupabaseClientOrWarn();
+        if (!client) return [];
+        const { data, error } = await client
+          .from("products")
+          .select("id,user_id,product_url,full_name,new_price")
+          .eq("user_id", state.sync.userId);
+        if (error) throw error;
+        return Array.isArray(data) ? data : [];
+      }
+
+      async function deleteProductFromSupabase(productOrId, warningMessage) {
+        if (!canUseSupabase()) return true;
+        const client = getSupabaseClientOrWarn();
+        if (!client) return false;
+        try {
+          const product = typeof productOrId === "object" && productOrId ? productOrId : null;
+          let id = cleanString(product ? product.id : productOrId);
+          if (!isUuid(id) && product) {
+            const key = productDuplicateKey(product);
+            const duplicate = (await fetchSupabaseRowsForDedupe()).find((row) => supabaseRowDuplicateKey(row) === key);
+            id = duplicate ? duplicate.id : "";
+          }
+          if (!isUuid(id)) return true;
+          const { error } = await client
+            .from("products")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", state.sync.userId);
+          if (error) throw error;
+          markSupabaseSynced();
+          return true;
+        } catch (error) {
+          warnSyncFailure(warningMessage || "Supabase 삭제에 실패했습니다.", error);
+          return false;
+        }
+      }
+
+      async function replaceSupabaseProducts(products, warningMessage) {
+        if (!canUseSupabase()) return true;
+        try {
+          await clearSupabaseProducts(warningMessage, false);
+          return await syncProductsToSupabase(products, warningMessage);
+        } catch (error) {
+          warnSyncFailure(warningMessage || "Supabase 데이터 교체에 실패했습니다.", error);
+          return false;
+        }
+      }
+
+      async function clearSupabaseProducts(warningMessage, showWarning = true) {
+        if (!canUseSupabase()) return true;
+        const client = getSupabaseClientOrWarn();
+        if (!client) return false;
+        try {
+          const { error } = await client
+            .from("products")
+            .delete()
+            .eq("user_id", state.sync.userId);
+          if (error) throw error;
+          markSupabaseSynced();
+          return true;
+        } catch (error) {
+          if (showWarning) warnSyncFailure(warningMessage || "Supabase 전체 삭제에 실패했습니다.", error);
+          throw error;
+        }
+      }
+
+      function productToSupabaseRow(product) {
+        const normalized = normalizeProduct(product);
+        return {
+          id: normalized.id,
+          user_id: state.sync.userId,
+          full_name: normalized.fullName,
+          name: normalized.name,
+          line: normalized.line,
+          category: normalized.category,
+          gender: normalized.gender,
+          old_price: normalized.originalPrice || null,
+          new_price: normalized.currentPrice || null,
+          image: safeRemoteImage(normalized.image),
+          product_url: normalized.url || "",
+          memo: normalized.memo || "",
+          status: normalized.status,
+          created_at: normalized.createdAt,
+          updated_at: normalized.updatedAt
+        };
+      }
+
+      function supabaseRowToProduct(row) {
+        return normalizeProduct({
+          id: row.id,
+          fullName: row.full_name,
+          name: row.name,
+          line: row.line,
+          category: row.category,
+          gender: row.gender,
+          oldPrice: row.old_price,
+          newPrice: row.new_price,
+          image: row.image,
+          productUrl: row.product_url,
+          memo: row.memo,
+          status: row.status,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at
+        });
+      }
+
+      function supabaseRowDuplicateKey(row) {
+        const url = cleanString(row.product_url).toLowerCase();
+        if (url) return "url:" + url;
+        return "name:" + cleanDedupeText(row.full_name) + "|" + (Number(row.new_price) || 0);
+      }
+
+      function ensureProductUuid(product) {
+        if (isUuid(product.id)) return product;
+        const oldId = cleanString(product.id);
+        product.id = createId();
+        if (oldId) updateLocalProductId(oldId, product.id);
+        return product;
+      }
+
+      function updateLocalProductId(oldId, newId) {
+        if (!oldId || !newId || oldId === newId) return;
+        state.products = state.products.map((product) => product.id === oldId ? { ...product, id: newId } : product);
+        if (state.flash.id === oldId) state.flash.id = newId;
+        if (state.quiz.id === oldId) state.quiz.id = newId;
+      }
+
+      function safeRemoteImage(value) {
+        const text = cleanString(value);
+        if (!text || text.startsWith("data:")) return "";
+        return safeHttpUrl(text);
+      }
+
+      function canUseSupabase() {
+        return Boolean(state.sync.client && state.sync.userId);
+      }
+
+      function getSupabaseClientOrWarn() {
+        if (!state.sync.client) {
+          showToast("Supabase 설정을 저장하고 로그인해 주세요.");
+          return null;
+        }
+        if (!state.sync.userId) {
+          showToast("Supabase 로그인 후 사용할 수 있습니다.");
+          return null;
+        }
+        return state.sync.client;
+      }
+
+      function markSupabaseSynced() {
+        state.sync.lastSyncAt = new Date().toISOString();
+        state.sync.lastError = "";
+        persistSupabaseConfig();
+        renderSyncPanel();
+      }
+
+      function setSyncBusy(message) {
+        state.sync.lastError = "";
+        const statusText = $("#syncStatusText");
+        const statusDetail = $("#syncStatusDetail");
+        if (statusText && statusDetail) {
+          statusText.textContent = "동기화 중";
+          statusDetail.textContent = message;
+        }
+      }
+
+      function warnSyncFailure(message, error) {
+        console.warn(error);
+        state.sync.lastError = message;
+        persistSupabaseConfig();
+        renderSyncPanel();
+        showToast(message, 5200);
+        alert(message + "\n\n상품 데이터는 이 기기의 localStorage에는 남아 있습니다.");
+      }
+
+      function cleanSupabaseUrl(value) {
+        return cleanString(value).replace(/\/+$/, "");
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "";
+        try {
+          return new Date(value).toLocaleString("ko-KR");
+        } catch (error) {
+          return value;
+        }
+      }
+
+      function copySupabaseSql() {
+        const sql = buildSupabaseSql();
+        const done = () => showToast("Supabase SQL을 복사했습니다.");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(sql).then(done).catch(() => fallbackCopy(sql, done));
+        } else {
+          fallbackCopy(sql, done);
+        }
+      }
+
+      function buildSupabaseSql() {
+        return `-- Supabase SQL Editor에서 실행하세요.
+-- service_role key는 앱에 넣지 마세요. 앱에는 publishable key 또는 anon key만 입력합니다.
+
+create extension if not exists pgcrypto;
+
+create table if not exists public.products (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  full_name text not null,
+  name text,
+  line text,
+  category text,
+  gender text,
+  old_price numeric,
+  new_price numeric,
+  image text,
+  product_url text,
+  memo text,
+  status text default 'unstudied',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index if not exists products_user_updated_idx
+on public.products (user_id, updated_at desc);
+
+create unique index if not exists products_user_product_url_unique
+on public.products (user_id, product_url)
+where product_url is not null and product_url <> '';
+
+create unique index if not exists products_user_name_price_unique
+on public.products (user_id, full_name, new_price)
+where coalesce(product_url, '') = '';
+
+alter table public.products enable row level security;
+
+drop policy if exists "users can read own products" on public.products;
+drop policy if exists "users can insert own products" on public.products;
+drop policy if exists "users can update own products" on public.products;
+drop policy if exists "users can delete own products" on public.products;
+
+create policy "users can read own products"
+on public.products
+for select
+to authenticated
+using (auth.uid() = user_id);
+
+create policy "users can insert own products"
+on public.products
+for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+create policy "users can update own products"
+on public.products
+for update
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create policy "users can delete own products"
+on public.products
+for delete
+to authenticated
+using (auth.uid() = user_id);`;
+      }
+
+      function getInitialView() {
+        const hash = window.location.hash.replace("#", "");
+        return ["register", "bulk", "list", "flash", "quiz", "wrong", "sync", "backup"].includes(hash) ? hash : "register";
+      }
+
+      function showView(view, pushHash = true) {
+        $$(".view").forEach((section) => {
+          section.hidden = section.id !== "view-" + view;
+        });
+        $$(".tab-button").forEach((button) => {
+          button.setAttribute("aria-selected", String(button.dataset.view === view));
+        });
+        if (pushHash && window.location.hash !== "#" + view) {
+          history.replaceState(null, "", "#" + view);
+        }
+        if (view === "flash" && !state.flash.id) drawFlashCard();
+        if (view === "quiz" && !state.quiz.id) drawQuizCard();
+        if (view === "wrong") renderWrongNote();
+        if (view === "backup") makeJsonText(false);
+        if (view === "sync") renderSyncPanel();
+        if (view === "bulk") {
+          syncBulkCategoryOptions();
+          $("#bookmarkletCode").textContent = buildBookmarkletCode();
+        }
+      }
+
+      async function handleSubmit(event) {
+        event.preventDefault();
+        const fullName = $("#fullName").value.trim();
+        if (!fullName) {
+          showToast("상품명을 입력하세요.");
+          $("#fullName").focus();
+          return;
+        }
+
+        const parsed = parseProductName(fullName);
+        const now = new Date().toISOString();
+        const previous = state.products.find((product) => product.id === state.editingId);
+        const imageFromUrl = $("#imageUrl").value.trim();
+        const image = state.currentImage || imageFromUrl;
+        const product = normalizeProduct({
+          id: previous ? previous.id : createId(),
+          fullName,
+          name: parsed.name || fullName,
+          line: $("#lineName").value.trim() || parsed.line,
+          category: $("#category").value,
+          gender: $("#gender").value,
+          currentPrice: parsePrice($("#currentPrice").value),
+          url: $("#productUrl").value.trim(),
+          memo: $("#memo").value.trim(),
+          image,
+          status: previous ? previous.status : "unstudied",
+          createdAt: previous ? previous.createdAt : now,
+          updatedAt: now
+        });
+
+        if (previous) {
+          state.products = state.products.map((item) => item.id === product.id ? product : item);
+        } else {
+          state.products.unshift(product);
+        }
+
+        if (!persistProducts()) return;
+        renderAll();
+        await syncProductToSupabase(product, "상품은 localStorage에 저장됐지만 Supabase 저장에 실패했습니다.");
+        resetForm();
+        showToast(previous ? "상품을 수정했습니다." : "상품을 저장했습니다.");
+        showView("list");
+      }
+
+      function handleNameInput() {
+        const parsed = parseProductName($("#fullName").value);
+        const chip = $("#parseChip");
+        if (parsed.line) {
+          chip.textContent = "라인 자동 감지: " + parsed.line;
+          chip.classList.add("is-visible");
+          if (!state.lineWasManual) {
+            state.lastAutoLine = parsed.line;
+            $("#lineName").value = parsed.line;
+          }
+        } else {
+          chip.textContent = "";
+          chip.classList.remove("is-visible");
+        }
+      }
+
+      function handleLineInput() {
+        const value = $("#lineName").value.trim();
+        state.lineWasManual = value !== state.lastAutoLine;
+      }
+
+      function handleImageFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          state.currentImage = String(reader.result || "");
+          $("#imageUrl").value = "";
+          updateImagePreview(state.currentImage);
+        };
+        reader.onerror = () => showToast("이미지를 읽지 못했습니다.");
+        reader.readAsDataURL(file);
+      }
+
+      function handleImageUrl() {
+        const value = $("#imageUrl").value.trim();
+        state.currentImage = value;
+        if (value) $("#imageFile").value = "";
+        updateImagePreview(value);
+      }
+
+      function clearImage() {
+        state.currentImage = "";
+        $("#imageFile").value = "";
+        $("#imageUrl").value = "";
+        updateImagePreview("");
+      }
+
+      function updateImagePreview(src) {
+        const preview = $("#imagePreview");
+        const image = $("#previewImg");
+        preview.classList.remove("is-broken");
+        if (!src) {
+          preview.classList.remove("has-image");
+          image.removeAttribute("src");
+          return;
+        }
+        preview.classList.add("has-image");
+        image.src = src;
+      }
+
+      function resetForm() {
+        $("#productForm").reset();
+        state.editingId = null;
+        state.currentImage = "";
+        state.lineWasManual = false;
+        state.lastAutoLine = "";
+        $("#formTitle").textContent = "상품 등록";
+        $("#formSubText").textContent = "공개 상품 정보를 직접 입력해 저장합니다.";
+        $("#saveButton").textContent = "저장";
+        $("#parseChip").textContent = "";
+        $("#parseChip").classList.remove("is-visible");
+        syncRegisterCategoryOptions();
+        updateImagePreview("");
+      }
+
+      function editProduct(id) {
+        const product = findProduct(id);
+        if (!product) return;
+        const parsed = parseProductName(product.fullName);
+        state.editingId = product.id;
+        state.currentImage = product.image || "";
+        state.lastAutoLine = parsed.line || "";
+        state.lineWasManual = Boolean(product.line && product.line !== state.lastAutoLine);
+
+        $("#formTitle").textContent = "상품 수정";
+        $("#formSubText").textContent = "저장하면 기존 상품 정보가 교체됩니다.";
+        $("#saveButton").textContent = "수정 저장";
+        $("#fullName").value = product.fullName;
+        $("#lineName").value = product.line;
+        $("#category").value = product.category;
+        $("#gender").value = product.gender;
+        syncRegisterCategoryOptions();
+        $("#currentPrice").value = product.currentPrice ? String(product.currentPrice.toLocaleString("ko-KR")) : "";
+        $("#productUrl").value = product.url || "";
+        $("#memo").value = product.memo || "";
+        $("#imageUrl").value = product.image && !product.image.startsWith("data:") ? product.image : "";
+        $("#imageFile").value = "";
+        updateImagePreview(product.image);
+        handleNameInput();
+        showView("register");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      async function deleteProduct(id) {
+        const product = findProduct(id);
+        if (!product) return;
+        if (!confirm("이 상품을 삭제할까요?")) return;
+        state.products = state.products.filter((item) => item.id !== id);
+        if (state.flash.id === id) state.flash.id = null;
+        if (state.quiz.id === id) state.quiz.id = null;
+        persistProducts();
+        renderAll();
+        await deleteProductFromSupabase(product, "상품은 localStorage에서 삭제됐지만 Supabase 삭제에 실패했습니다.");
+        showToast("상품을 삭제했습니다.");
+      }
+
+      function handleDocumentClick(event) {
+        const actionTarget = event.target.closest("[data-action]");
+        if (!actionTarget) return;
+
+        const action = actionTarget.dataset.action;
+        const id = actionTarget.dataset.id;
+
+        if (action === "edit") editProduct(id);
+        if (action === "delete") deleteProduct(id);
+        if (action === "reveal-flash") revealFlashAnswer();
+        if (action === "select-quiz-price") selectQuizPrice(Number(actionTarget.dataset.price) || 0);
+        if (action === "next-flash") drawFlashCard();
+        if (action === "next-quiz") drawQuizCard();
+        if (action === "mark-status") {
+          updateStatus(id, actionTarget.dataset.status);
+          drawFlashCard();
+        }
+        if (action === "start-wrong-flash") {
+          $("#flashPool").value = "weak";
+          state.flash.id = null;
+          showView("flash");
+        }
+        if (action === "start-wrong-quiz") {
+          $("#quizPool").value = "weak";
+          state.quiz.id = null;
+          showView("quiz");
+        }
+      }
+
+      function handleDocumentChange(event) {
+        const statusSelect = event.target.closest("[data-status-select]");
+        if (!statusSelect) return;
+        updateStatus(statusSelect.dataset.id, statusSelect.value);
+      }
+
+      async function updateStatus(id, status) {
+        if (!VALID_STATUSES.includes(status)) return;
+        let updatedProduct = null;
+        state.products = state.products.map((product) => {
+          if (product.id !== id) return product;
+          updatedProduct = { ...product, status, updatedAt: new Date().toISOString() };
+          return updatedProduct;
+        });
+        persistProducts();
+        renderAll();
+        if (updatedProduct) {
+          await syncProductToSupabase(updatedProduct, "암기상태는 localStorage에 저장됐지만 Supabase 저장에 실패했습니다.");
+        }
+        showToast("암기상태를 저장했습니다.");
+      }
+
+      function renderAll() {
+        renderLineControls();
+        renderStats();
+        renderList();
+        renderWrongNote();
+        if (state.flash.id) renderFlashCard();
+        if (state.quiz.id) renderQuizCard();
+      }
+
+      function renderStats() {
+        $("#statTotal").textContent = String(state.products.length);
+        $("#statWeak").textContent = String(getWrongProducts().length);
+        $("#statKnown").textContent = String(state.products.filter((product) => product.status === "memorized").length);
+      }
+
+      function renderLineControls() {
+        const selected = $("#filterLine").value || "all";
+        const lines = getLines();
+        $("#lineOptions").innerHTML = lines.map((line) => `<option value="${escapeAttribute(line)}"></option>`).join("");
+        $("#filterLine").innerHTML = `<option value="all">전체</option>` + lines.map((line) => {
+          return `<option value="${escapeAttribute(line)}">${escapeHtml(line)}</option>`;
+        }).join("");
+        $("#filterLine").value = selected === "all" || lines.includes(selected) ? selected : "all";
+      }
+
+      function renderList() {
+        const list = $("#productList");
+        const products = getFilteredProducts();
+        $("#listCount").textContent = products.length + "개 표시";
+        if (!products.length) {
+          list.innerHTML = `<div class="empty-state">표시할 상품이 없습니다.</div>`;
+          return;
+        }
+        list.innerHTML = products.map((product) => renderProductCard(product)).join("");
+      }
+
+      function renderWrongNote() {
+        const wrong = getWrongProducts();
+        $("#wrongCount").textContent = wrong.length + "개 상품";
+        const wrongList = $("#wrongList");
+        if (!wrong.length) {
+          wrongList.innerHTML = `<div class="empty-state">모름 또는 헷갈림으로 표시된 상품이 없습니다.</div>`;
+          return;
+        }
+        wrongList.innerHTML = wrong.map((product) => renderProductCard(product)).join("");
+      }
+
+      function renderProductCard(product) {
+        const status = STATUS_META[product.status] || STATUS_META.unstudied;
+        const url = safeHttpUrl(product.url);
+        return `
+          <article class="product-card">
+            <div class="product-image-wrap">
+              ${renderImage(product.image, product.fullName, "product-image")}
+            </div>
+            <div class="product-body">
+              <div>
+                <h3 class="product-title">${escapeHtml(product.fullName)}</h3>
+                ${product.name && product.name !== product.fullName ? `<p class="sub-name">${escapeHtml(product.name)}</p>` : ""}
+              </div>
+              <div class="tag-row">
+                ${product.line ? `<span class="tag line-tag">${escapeHtml(product.line)}</span>` : `<span class="tag">라인 없음</span>`}
+                <span class="tag">${escapeHtml(product.gender)}</span>
+                <span class="tag">${escapeHtml(product.category)}</span>
+                <span class="status-pill ${status.className}">${status.label}</span>
+              </div>
+              <div class="price-block">
+                <div class="price-row">
+                  <span>현재가</span>
+                  <strong>${formatPrice(product.currentPrice)}</strong>
+                </div>
+              </div>
+              <div class="status-row">
+                ${renderStatusSelect(product)}
+              </div>
+              <div class="card-actions">
+                <button class="small-button" type="button" data-action="edit" data-id="${escapeAttribute(product.id)}">수정</button>
+                <button class="small-button danger" type="button" data-action="delete" data-id="${escapeAttribute(product.id)}">삭제</button>
+                ${url ? `<a class="small-button" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">공식 URL</a>` : ""}
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderStatusSelect(product) {
+        return `
+          <label class="sr-only" for="status-${escapeAttribute(product.id)}">암기상태</label>
+          <select class="status-select" id="status-${escapeAttribute(product.id)}" data-status-select data-id="${escapeAttribute(product.id)}">
+            ${VALID_STATUSES.map((status) => {
+              const selected = status === product.status ? " selected" : "";
+              return `<option value="${status}"${selected}>${STATUS_META[status].label}</option>`;
+            }).join("")}
+          </select>
+        `;
+      }
+
+      function drawFlashCard() {
+        const pool = getStudyPool($("#flashPool").value);
+        if (!pool.length) {
+          state.flash = { id: null, revealed: false };
+          $("#flashCard").innerHTML = `<div class="empty-state">출제할 상품이 없습니다.</div>`;
+          return;
+        }
+        const next = pickRandom(pool, state.flash.id);
+        state.flash = { id: next.id, revealed: false };
+        renderFlashCard();
+      }
+
+      function revealFlashAnswer() {
+        if (!state.flash.id) return;
+        state.flash.revealed = true;
+        renderFlashCard();
+      }
+
+      function renderFlashCard() {
+        const product = findProduct(state.flash.id);
+        if (!product) {
+          drawFlashCard();
+          return;
+        }
+        $("#flashCard").innerHTML = `
+          <article class="study-card">
+            <div class="study-image-frame">
+              ${renderImage(product.image, "플래시카드 상품 사진", "large-study-image")}
+            </div>
+            <div class="study-body">
+              <div class="actions">
+                <button class="button primary" type="button" data-action="reveal-flash">정답 보기</button>
+                <button class="button secondary" type="button" data-action="next-flash">다음 문제</button>
+              </div>
+              <div class="answer-box" ${state.flash.revealed ? "" : "hidden"}>
+                <h3 class="answer-title">${escapeHtml(product.fullName)}</h3>
+                <div class="tag-row">
+                  ${product.line ? `<span class="tag line-tag">${escapeHtml(product.line)}</span>` : ""}
+                  <span class="tag">${escapeHtml(product.gender)}</span>
+                  <span class="tag">${escapeHtml(product.category)}</span>
+                </div>
+                <div class="price-block">
+                  <div class="price-row"><span>현재가</span><strong>${formatPrice(product.currentPrice)}</strong></div>
+                </div>
+                ${product.memo ? `<p class="memo">${escapeHtml(product.memo)}</p>` : ""}
+                <div class="status-buttons">
+                  <button class="status-button" type="button" data-action="mark-status" data-status="unknown" data-id="${escapeAttribute(product.id)}">모름</button>
+                  <button class="status-button" type="button" data-action="mark-status" data-status="unsure" data-id="${escapeAttribute(product.id)}">헷갈림</button>
+                  <button class="status-button" type="button" data-action="mark-status" data-status="memorized" data-id="${escapeAttribute(product.id)}">외움</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      function drawQuizCard() {
+        const pool = getStudyPool($("#quizPool").value).filter((product) => product.currentPrice > 0);
+        if (!pool.length) {
+          state.quiz = { id: null, revealed: false, selectedPrice: 0, options: [] };
+          $("#quizCard").innerHTML = `<div class="empty-state">현재가가 입력된 상품이 없습니다.</div>`;
+          return;
+        }
+        const next = pickRandom(pool, state.quiz.id);
+        state.quiz = {
+          id: next.id,
+          revealed: false,
+          selectedPrice: 0,
+          options: makeQuizOptions(next, pool)
+        };
+        renderQuizCard();
+      }
+
+      function selectQuizPrice(price) {
+        if (!state.quiz.id || state.quiz.revealed) return;
+        state.quiz.selectedPrice = price;
+        state.quiz.revealed = true;
+        renderQuizCard();
+      }
+
+      function renderQuizCard() {
+        const product = findProduct(state.quiz.id);
+        if (!product) {
+          drawQuizCard();
+          return;
+        }
+        if (!state.quiz.options || state.quiz.options.length !== 3) {
+          state.quiz.options = makeQuizOptions(product, getStudyPool($("#quizPool").value).filter((item) => item.currentPrice > 0));
+        }
+        const selectedPrice = Number(state.quiz.selectedPrice) || 0;
+        const isCorrect = state.quiz.revealed && selectedPrice === product.currentPrice;
+        const resultText = state.quiz.revealed
+          ? (isCorrect ? "정답입니다." : "오답입니다. 정답은 " + formatPrice(product.currentPrice) + " 입니다.")
+          : "현재가를 선택하세요.";
+        $("#quizCard").innerHTML = `
+          <article class="quiz-card">
+            <div class="study-image-frame">
+              ${renderImage(product.image, "가격 퀴즈 상품 사진", "large-study-image")}
+            </div>
+            <div class="study-body">
+              <div class="answer-box">
+                <div class="tag-row">
+                  ${product.line ? `<span class="tag line-tag">${escapeHtml(product.line)}</span>` : ""}
+                  <span class="tag">${escapeHtml(product.gender)}</span>
+                  <span class="tag">${escapeHtml(product.category)}</span>
+                </div>
+                <div class="hint-name">${escapeHtml(makeNameHint(product))}</div>
+                <div class="quiz-options" aria-label="현재가 선택지">
+                  ${state.quiz.options.map((price) => renderQuizOption(price, product.currentPrice, selectedPrice)).join("")}
+                </div>
+              </div>
+              <div class="answer-box" ${state.quiz.revealed ? "" : "hidden"}>
+                <h3 class="answer-title">${escapeHtml(product.fullName)}</h3>
+                <div class="delta ${isCorrect ? "negative" : "positive"}">${escapeHtml(resultText)}</div>
+                <div class="price-block">
+                  <div class="price-row"><span>현재가</span><strong>${formatPrice(product.currentPrice)}</strong></div>
+                </div>
+                <div class="actions">
+                  <button class="button secondary" type="button" data-action="next-quiz">다음 문제</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderQuizOption(price, answerPrice, selectedPrice) {
+        const classes = ["quiz-option"];
+        if (state.quiz.revealed && price === answerPrice) classes.push("correct");
+        if (state.quiz.revealed && price === selectedPrice && price !== answerPrice) classes.push("wrong");
+        if (!state.quiz.revealed && price === selectedPrice) classes.push("selected");
+        return `<button class="${classes.join(" ")}" type="button" data-action="select-quiz-price" data-price="${price}" ${state.quiz.revealed ? "disabled" : ""}>${formatPrice(price)}</button>`;
+      }
+
+      function makeQuizOptions(product, pool) {
+        const answer = Number(product.currentPrice) || 0;
+        const optionSet = new Set([answer]);
+        shuffleArray(Array.from(new Set(pool.map((item) => Number(item.currentPrice) || 0).filter((price) => price > 0 && price !== answer))))
+          .slice(0, 2)
+          .forEach((price) => optionSet.add(price));
+
+        const generated = makeDistractorPrices(answer);
+        generated.forEach((price) => {
+          if (optionSet.size < 3) optionSet.add(price);
+        });
+        let step = Math.max(10000, roundPrice(answer * 0.08));
+        let attempt = 1;
+        while (optionSet.size < 3 && attempt < 12) {
+          optionSet.add(answer + step * attempt);
+          if (optionSet.size < 3 && answer - step * attempt > 0) {
+            optionSet.add(answer - step * attempt);
+          }
+          attempt += 1;
+        }
+
+        return shuffleArray(Array.from(optionSet).filter((price) => price > 0)).slice(0, 3);
+      }
+
+      function makeDistractorPrices(answer) {
+        const multipliers = [0.82, 1.18, 0.9, 1.12, 0.75, 1.28, 0.68, 1.35];
+        return multipliers
+          .map((multiplier) => roundPrice(answer * multiplier))
+          .filter((price) => price > 0 && price !== answer);
+      }
+
+      function roundPrice(value) {
+        const number = Number(value) || 0;
+        if (number >= 1000000) return Math.round(number / 10000) * 10000;
+        if (number >= 100000) return Math.round(number / 5000) * 5000;
+        return Math.round(number / 1000) * 1000;
+      }
+
+      function makeNameHint(product) {
+        const baseName = product.name || parseProductName(product.fullName).name || product.fullName;
+        const masked = maskText(baseName);
+        return product.line ? "[" + product.line + "] " + masked : masked;
+      }
+
+      function maskText(text) {
+        const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+        if (!words.length) return "상품명 힌트 없음";
+        return words.map((word) => {
+          const chars = Array.from(word);
+          if (chars.length <= 1) return word;
+          if (chars.length === 2) return chars[0] + "·";
+          return chars[0] + "·".repeat(Math.min(chars.length - 2, 4)) + chars[chars.length - 1];
+        }).join(" ");
+      }
+
+      function getStudyPool(mode) {
+        if (mode === "weak") return getWrongProducts();
+        if (mode === "filtered") return getFilteredProducts();
+        return [...state.products];
+      }
+
+      function getFilteredProducts() {
+        const gender = $("#filterGender").value;
+        const category = $("#filterCategory").value;
+        const line = $("#filterLine").value;
+        const status = $("#filterStatus").value;
+
+        return [...state.products]
+          .filter((product) => gender === "all" || product.gender === gender)
+          .filter((product) => category === "all" || product.category === category)
+          .filter((product) => line === "all" || product.line === line)
+          .filter((product) => status === "all" || product.status === status)
+          .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+      }
+
+      function clearFilters() {
+        $("#filterGender").value = "all";
+        $("#filterCategory").value = "all";
+        $("#filterLine").value = "all";
+        $("#filterStatus").value = "all";
+        syncFilterCategoryOptions();
+        renderList();
+      }
+
+      function syncRegisterCategoryOptions() {
+        syncCategoryOptionsForGender("#category", $("#gender").value, "Bag");
+      }
+
+      function syncBulkCategoryOptions() {
+        syncCategoryOptionsForGender("#bulkCategory", $("#bulkGender").value, "Bag");
+      }
+
+      function syncFilterCategoryOptions() {
+        syncCategoryOptionsForGender("#filterCategory", $("#filterGender").value, "all");
+      }
+
+      function syncCategoryOptionsForGender(categorySelector, gender, fallbackValue) {
+        const select = $(categorySelector);
+        if (!select) return;
+        const travelOption = select.querySelector('option[value="Travel"]');
+        if (!travelOption) return;
+        const shouldHideTravel = gender === "Women";
+        travelOption.hidden = shouldHideTravel;
+        travelOption.disabled = shouldHideTravel;
+        if (shouldHideTravel && select.value === "Travel") {
+          select.value = fallbackValue;
+        }
+      }
+
+      function previewBulkProducts() {
+        const parsed = parseBulkInput($("#bulkText").value, getBulkDefaults());
+        renderBulkResult(parsed);
+      }
+
+      async function importBulkProducts() {
+        const parsed = parseBulkInput($("#bulkText").value, getBulkDefaults());
+        if (!parsed.products.length) {
+          renderBulkResult(parsed);
+          showToast("등록할 상품을 찾지 못했습니다.");
+          return;
+        }
+        const merged = await mergeProductBatch(parsed.products);
+        renderBulkResult(parsed, merged);
+        if (merged.added > 0) {
+          showToast(merged.added + "개 상품을 대량등록했습니다.");
+        } else {
+          showToast("새로 등록된 상품이 없습니다.");
+        }
+      }
+
+      function importBulkJsonFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          $("#bulkText").value = String(reader.result || "");
+          importBulkProducts();
+          event.target.value = "";
+        };
+        reader.onerror = () => showToast("JSON 파일을 읽지 못했습니다.");
+        reader.readAsText(file);
+      }
+
+      function clearBulkInput() {
+        $("#bulkText").value = "";
+        $("#bulkResult").textContent = "붙여넣은 내용을 자동으로 판별합니다.";
+      }
+
+      function getBulkDefaults() {
+        return {
+          category: $("#bulkCategory").value,
+          gender: $("#bulkGender").value
+        };
+      }
+
+      function parseBulkInput(text, defaults) {
+        const value = String(text || "").trim();
+        if (!value) {
+          return { sourceLabel: "빈 입력", products: [], invalid: 0, messages: ["붙여넣은 내용이 없습니다."] };
+        }
+
+        const json = tryParseBulkJson(value, defaults);
+        if (json) return json;
+
+        if (looksLikeDelimited(value)) {
+          return parseDelimitedBulk(value, defaults);
+        }
+
+        return parsePlainTextBulk(value, defaults);
+      }
+
+      function tryParseBulkJson(text, defaults) {
+        try {
+          const parsed = JSON.parse(text);
+          const incoming = Array.isArray(parsed) ? parsed : parsed.products;
+          if (!Array.isArray(incoming)) return null;
+          const products = incoming.map((item) => productFromBulkSource(item, defaults)).filter((product) => product.fullName);
+          return {
+            sourceLabel: "JSON",
+            products,
+            invalid: incoming.length - products.length,
+            messages: []
+          };
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function looksLikeDelimited(text) {
+        const firstLine = text.split(/\r?\n/).map((line) => line.trim()).find(Boolean) || "";
+        const normalized = firstLine.toLowerCase().replace(/\s+/g, "");
+        return (firstLine.includes("\t") || firstLine.includes(",")) &&
+          (normalized.includes("fullname") || normalized.includes("productname") || normalized.includes("price"));
+      }
+
+      function parseDelimitedBulk(text, defaults) {
+        const lines = text.split(/\r?\n/).filter((line) => line.trim());
+        const delimiter = lines[0].includes("\t") ? "\t" : ",";
+        const headers = parseDelimitedLine(lines[0], delimiter).map(normalizeHeader);
+        const products = [];
+        let invalid = 0;
+
+        lines.slice(1).forEach((line) => {
+          const cells = parseDelimitedLine(line, delimiter);
+          const row = {};
+          headers.forEach((header, index) => {
+            row[header] = cleanString(cells[index]);
+          });
+          const product = productFromBulkSource({
+            fullName: readRowValue(row, ["fullname", "productname", "상품명"]),
+            price: readRowValue(row, ["price", "currentprice", "newprice", "현재가", "인상가"]),
+            imageUrl: readRowValue(row, ["imageurl", "image", "photo", "사진"]),
+            productUrl: readRowValue(row, ["producturl", "url", "상품url"]),
+            category: readRowValue(row, ["category", "카테고리"]),
+            gender: readRowValue(row, ["gender", "성별"]),
+            line: readRowValue(row, ["line", "linename", "라인", "라인명"]),
+            memo: readRowValue(row, ["memo", "note", "메모"])
+          }, defaults);
+
+          if (product.fullName) {
+            products.push(product);
+          } else {
+            invalid += 1;
+          }
+        });
+
+        return { sourceLabel: delimiter === "\t" ? "TSV" : "CSV", products, invalid, messages: [] };
+      }
+
+      function parsePlainTextBulk(text, defaults) {
+        const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        const products = [];
+        let lastName = "";
+        let invalid = 0;
+
+        lines.forEach((line) => {
+          if (isPriceLine(line)) {
+            if (!lastName) {
+              invalid += 1;
+              return;
+            }
+            products.push(productFromBulkSource({
+              fullName: lastName,
+              currentPrice: parsePrice(line),
+              category: defaults.category,
+              gender: defaults.gender
+            }, defaults));
+            lastName = "";
+          } else {
+            lastName = line;
+          }
+        });
+
+        return {
+          sourceLabel: "텍스트",
+          products: products.filter((product) => product.fullName),
+          invalid,
+          messages: lastName ? ["마지막 상품명 뒤에 가격 줄이 없어 건너뛰었습니다."] : []
+        };
+      }
+
+      function productFromBulkSource(input, defaults) {
+        const source = input || {};
+        const fullName = cleanString(firstFilled(source.fullName, source.full_name, source.productName, source.product_name));
+        const parsed = parseProductName(fullName);
+        return normalizeProduct({
+          id: source.id,
+          fullName,
+          name: firstFilled(source.name, parsed.name),
+          line: firstFilled(source.line, source.lineName, source.line_name, parsed.line),
+          category: firstFilled(source.category, defaults.category),
+          gender: firstFilled(source.gender, defaults.gender),
+          originalPrice: firstFilled(source.originalPrice, source.oldPrice, source.old_price),
+          currentPrice: firstFilled(source.currentPrice, source.current_price, source.raisedPrice, source.newPrice, source.new_price, source.price),
+          image: firstFilled(source.image, source.imageUrl, source.image_url, source.photo),
+          url: firstFilled(source.url, source.productUrl, source.product_url),
+          memo: firstFilled(source.memo, source.note),
+          status: firstFilled(source.status, "unstudied"),
+          createdAt: firstFilled(source.createdAt, source.created_at),
+          updatedAt: firstFilled(source.updatedAt, source.updated_at)
+        });
+      }
+
+      async function mergeProductBatch(products) {
+        const now = new Date().toISOString();
+        const seen = new Set(state.products.map(productDuplicateKey));
+        const added = [];
+        let duplicates = 0;
+        let invalid = 0;
+
+        products.forEach((raw) => {
+          const product = normalizeProduct({
+            ...raw,
+            id: createId(),
+            createdAt: now,
+            updatedAt: now
+          });
+          if (!product.fullName) {
+            invalid += 1;
+            return;
+          }
+          const key = productDuplicateKey(product);
+          if (seen.has(key)) {
+            duplicates += 1;
+            return;
+          }
+          seen.add(key);
+          added.push(product);
+        });
+
+        if (!added.length) {
+          return { added: 0, duplicates, invalid, error: false };
+        }
+
+        const previous = state.products;
+        state.products = [...added, ...state.products];
+        state.flash.id = null;
+        state.quiz.id = null;
+
+        if (!persistProducts()) {
+          state.products = previous;
+          return { added: 0, duplicates, invalid, error: true };
+        }
+
+        const syncOk = await syncProductsToSupabase(added, "대량등록 데이터는 localStorage에 저장됐지만 Supabase 저장에 실패했습니다.");
+        renderAll();
+        return { added: added.length, duplicates, invalid, error: false, syncError: !syncOk && canUseSupabase() };
+      }
+
+      function renderBulkResult(parsed, merged) {
+        const sample = parsed.products.slice(0, 6).map((product) => {
+          return `<li>${escapeHtml(product.fullName)} · ${formatPrice(product.currentPrice)}${product.line ? " · " + escapeHtml(product.line) : ""}</li>`;
+        }).join("");
+        let html = `<div><strong>${escapeHtml(parsed.sourceLabel)}</strong> 형식으로 ${parsed.products.length}개 상품을 파싱했습니다.</div>`;
+        if (merged) {
+          html += `<div><strong>${merged.added}</strong>개 등록 · ${merged.duplicates}개 중복 건너뜀 · ${merged.invalid + parsed.invalid}개 제외</div>`;
+          if (merged.error) html += `<div>브라우저 저장 공간 문제로 등록하지 못했습니다.</div>`;
+          if (merged.syncError) html += `<div>Supabase 저장에 실패했습니다. localStorage에는 남아 있습니다.</div>`;
+        } else if (parsed.invalid) {
+          html += `<div>${parsed.invalid}개 줄은 상품으로 만들 수 없어 제외됩니다.</div>`;
+        }
+        if (parsed.messages.length) {
+          html += parsed.messages.map((message) => `<div>${escapeHtml(message)}</div>`).join("");
+        }
+        if (sample) {
+          html += `<ol class="mini-list">${sample}</ol>`;
+        }
+        $("#bulkResult").innerHTML = html;
+      }
+
+      function isPriceLine(line) {
+        const text = cleanString(line);
+        return /^(?:[₩￦]\s*\d[\d,\s]*|\d[\d,\s]*원|\d{1,3}(?:,\d{3})+(?:\s*원)?|\d{5,})$/.test(text);
+      }
+
+      function parseDelimitedLine(line, delimiter) {
+        const cells = [];
+        let current = "";
+        let inQuotes = false;
+
+        for (let index = 0; index < line.length; index += 1) {
+          const char = line[index];
+          const next = line[index + 1];
+          if (char === "\"") {
+            if (inQuotes && next === "\"") {
+              current += "\"";
+              index += 1;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (char === delimiter && !inQuotes) {
+            cells.push(current);
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+        cells.push(current);
+        return cells;
+      }
+
+      function normalizeHeader(value) {
+        return cleanString(value).toLowerCase().replace(/[^a-z0-9가-힣]/g, "");
+      }
+
+      function readRowValue(row, keys) {
+        for (const key of keys) {
+          const normalized = normalizeHeader(key);
+          if (row[normalized]) return row[normalized];
+        }
+        return "";
+      }
+
+      function firstFilled() {
+        for (const value of arguments) {
+          if (value !== undefined && value !== null && cleanString(value) !== "") return value;
+        }
+        return "";
+      }
+
+      function productDuplicateKey(product) {
+        const url = cleanString(product.url || product.productUrl).toLowerCase();
+        if (url) return "url:" + url;
+        return "name:" + cleanDedupeText(product.fullName) + "|" + (Number(product.currentPrice) || 0);
+      }
+
+      function cleanDedupeText(value) {
+        return cleanString(value).replace(/\s+/g, " ").toLowerCase();
+      }
+
+      function copyBookmarkletCode() {
+        const code = $("#bookmarkletCode").textContent;
+        const done = () => showToast("북마클릿 코드를 복사했습니다.");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(done).catch(() => fallbackCopy(code, done));
+        } else {
+          fallbackCopy(code, done);
+        }
+      }
+
+      function fallbackCopy(text, onDone) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+        onDone();
+      }
+
+      function buildBookmarkletCode() {
+        const source = "(" + function () {
+          const pricePattern = /(?:[₩￦]\s*\d[\d,\s]*|\d[\d,\s]*원|\d{1,3}(?:,\d{3})+)/;
+          const rejectPattern = /^(?:구매|장바구니|담기|추가|보기|자세히|필터|정렬|로그인|회원|배송|선택|색상|사이즈|add|bag|cart|shop|filter|sort)$/i;
+
+          function clean(text) {
+            return String(text || "").replace(/\s+/g, " ").trim();
+          }
+
+          function isVisible(element) {
+            if (!element || !element.getBoundingClientRect) return false;
+            const style = getComputedStyle(element);
+            if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return false;
+            const rect = element.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+          }
+
+          function parsePrice(text) {
+            const match = String(text || "").match(pricePattern);
+            if (!match) return 0;
+            const numberText = match[0].replace(/[^\d]/g, "");
+            return numberText ? Number(numberText) : 0;
+          }
+
+          function parseName(fullName) {
+            const value = clean(fullName);
+            const match = value.match(/^(?:\[([^\]\[]+)\]|［([^］]+)］|【([^】]+)】)\s*(.*)$/);
+            if (!match) return { fullName: value, line: "", name: value };
+            const line = clean(match[1] || match[2] || match[3] || "");
+            const name = clean(match[4] || "");
+            return { fullName: value, line: line, name: name || value };
+          }
+
+          function absoluteUrl(url) {
+            try {
+              return url ? new URL(url, location.href).href : "";
+            } catch (error) {
+              return "";
+            }
+          }
+
+          function imageFromSrcset(value) {
+            return clean(value).split(",").map(function (part) {
+              return clean(part).split(/\s+/)[0];
+            }).filter(Boolean).pop() || "";
+          }
+
+          function getImageUrl(image) {
+            if (!image) return "";
+            const direct = image.currentSrc ||
+              image.src ||
+              image.getAttribute("data-src") ||
+              image.getAttribute("data-original") ||
+              image.getAttribute("data-lazy-src") ||
+              image.dataset.src ||
+              image.dataset.original ||
+              image.dataset.lazySrc ||
+              "";
+            if (direct) return absoluteUrl(direct);
+            const srcset = image.srcset || image.getAttribute("data-srcset") || image.dataset.srcset || "";
+            return absoluteUrl(imageFromSrcset(srcset));
+          }
+
+          function findCard(element) {
+            let node = element;
+            for (let depth = 0; depth < 9 && node && node !== document.body; depth += 1) {
+              if (node.querySelector && node.querySelector("img")) return node;
+              node = node.parentElement;
+            }
+            return element.closest("article,li,[class*='product'],[class*='card'],[data-product-id]") || element.parentElement;
+          }
+
+          function findName(priceElement, card) {
+            const text = card && card.innerText ? card.innerText : priceElement.innerText;
+            const lines = String(text || "").split(/\n+/).map(clean).filter(Boolean);
+            const priceIndex = lines.findIndex(function (line) { return pricePattern.test(line); });
+            const candidates = lines.filter(function (line) {
+              return !pricePattern.test(line) &&
+                line.length > 1 &&
+                line.length < 140 &&
+                !rejectPattern.test(line);
+            });
+            if (priceIndex > 0) {
+              for (let index = priceIndex - 1; index >= 0; index -= 1) {
+                const line = clean(lines[index]);
+                if (candidates.includes(line)) return line;
+              }
+            }
+            return candidates[0] || "";
+          }
+
+          const priceElements = [];
+          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+          let node;
+          while ((node = walker.nextNode())) {
+            const text = clean(node.nodeValue);
+            const element = node.parentElement;
+            if (text && pricePattern.test(text) && isVisible(element)) {
+              priceElements.push(element);
+            }
+          }
+
+          const seen = new Set();
+          const products = [];
+          priceElements.forEach(function (element) {
+            const price = parsePrice(element.textContent);
+            if (!price) return;
+            const card = findCard(element);
+            if (!card) return;
+            const fullName = findName(element, card);
+            if (!fullName) return;
+            const image = getImageUrl(card.querySelector("img"));
+            const link = element.closest("a[href]") || card.querySelector("a[href]");
+            const productUrl = absoluteUrl(link && link.getAttribute("href"));
+            const parsed = parseName(fullName);
+            const key = productUrl || clean(fullName).toLowerCase() + "|" + price;
+            if (seen.has(key)) return;
+            seen.add(key);
+            products.push({
+              fullName: parsed.fullName,
+              name: parsed.name,
+              line: parsed.line,
+              currentPrice: price,
+              newPrice: price,
+              image: image,
+              imageUrl: image,
+              url: productUrl,
+              productUrl: productUrl,
+              category: "",
+              gender: "",
+              memo: ""
+            });
+          });
+
+          if (!products.length) {
+            alert("No product cards were found on the currently loaded page.");
+            return;
+          }
+
+          const blob = new Blob([JSON.stringify(products, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement("a");
+          anchor.href = url;
+          anchor.download = "gucci-products.json";
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          URL.revokeObjectURL(url);
+          alert(products.length + " products saved to gucci-products.json.");
+        }.toString() + ")();";
+
+        return "javascript:" + encodeURIComponent(source);
+      }
+
+      function getWrongProducts() {
+        return state.products.filter((product) => product.status === "unknown" || product.status === "unsure");
+      }
+
+      function getLines() {
+        return Array.from(new Set(state.products.map((product) => product.line).filter(Boolean)))
+          .sort((a, b) => a.localeCompare(b, "ko"));
+      }
+
+      function parseProductName(fullName) {
+        const value = String(fullName || "").trim();
+        const match = value.match(/^(?:\[([^\]\[]+)\]|［([^］]+)］|【([^】]+)】)\s*(.*)$/);
+        if (!match) return { fullName: value, line: "", name: value };
+        const line = (match[1] || match[2] || match[3] || "").trim();
+        const name = (match[4] || "").trim();
+        return { fullName: value, line, name: name || value };
+      }
+
+      function parsePrice(value) {
+        if (typeof value === "number") return Number.isFinite(value) ? Math.round(value) : 0;
+        const numberText = String(value || "").replace(/[^\d]/g, "");
+        return numberText ? Number(numberText) : 0;
+      }
+
+      function formatPrice(value) {
+        const price = Number(value) || 0;
+        return price ? "₩" + price.toLocaleString("ko-KR") : "-";
+      }
+
+      function loadProducts() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          const products = Array.isArray(parsed) ? parsed : parsed.products;
+          return Array.isArray(products) ? products.map(normalizeProduct).filter((product) => product.fullName) : [];
+        } catch (error) {
+          console.warn(error);
+          return [];
+        }
+      }
+
+      function persistProducts() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, products: state.products }));
+          return true;
+        } catch (error) {
+          console.warn(error);
+          alert("브라우저 저장 공간이 부족합니다. 큰 이미지는 용량을 줄여 다시 등록해 주세요.");
+          return false;
+        }
+      }
+
+      function normalizeProduct(input) {
+        const source = input || {};
+        const fullName = cleanString(firstFilled(source.fullName, source.full_name, source.productName, source.product_name));
+        const parsed = parseProductName(fullName);
+        const status = VALID_STATUSES.includes(source.status) ? source.status : "unstudied";
+        const gender = cleanString(source.gender || "Women");
+        const category = normalizeCategoryForGender(cleanString(source.category || "Bag"), gender);
+        return {
+          id: cleanString(source.id) || createId(),
+          image: cleanString(firstFilled(source.image, source.imageUrl, source.image_url, source.photo)),
+          fullName,
+          name: cleanString(source.name || parsed.name || fullName),
+          line: cleanString(firstFilled(source.line, source.lineName, source.line_name, parsed.line)),
+          category,
+          gender,
+          originalPrice: parsePrice(firstFilled(source.originalPrice, source.existingPrice, source.oldPrice, source.old_price)),
+          currentPrice: parsePrice(firstFilled(source.currentPrice, source.current_price, source.raisedPrice, source.newPrice, source.new_price, source.price)),
+          url: cleanString(firstFilled(source.url, source.productUrl, source.product_url)),
+          memo: cleanString(source.memo || source.note || ""),
+          status,
+          createdAt: cleanString(firstFilled(source.createdAt, source.created_at)) || new Date().toISOString(),
+          updatedAt: cleanString(firstFilled(source.updatedAt, source.updated_at)) || cleanString(firstFilled(source.createdAt, source.created_at)) || new Date().toISOString()
+        };
+      }
+
+      function normalizeCategoryForGender(category, gender) {
+        if (gender === "Women" && category === "Travel") return "Bag";
+        return category || "Bag";
+      }
+
+      function makeBackupPayload() {
+        return {
+          app: "gucci-product-memory",
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          products: state.products
+        };
+      }
+
+      function makeJsonText(showMessage = true) {
+        $("#backupText").value = JSON.stringify(makeBackupPayload(), null, 2);
+        if (showMessage) showToast("JSON을 만들었습니다.");
+      }
+
+      function downloadJson() {
+        const payload = JSON.stringify(makeBackupPayload(), null, 2);
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "gucci-products-" + new Date().toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+        showToast("JSON 다운로드를 시작했습니다.");
+      }
+
+      function importJsonFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          $("#backupText").value = String(reader.result || "");
+          restoreFromTextarea();
+          event.target.value = "";
+        };
+        reader.onerror = () => showToast("JSON 파일을 읽지 못했습니다.");
+        reader.readAsText(file);
+      }
+
+      async function restoreFromTextarea() {
+        const text = $("#backupText").value.trim();
+        if (!text) {
+          showToast("복원할 JSON을 입력하세요.");
+          return;
+        }
+        try {
+          const parsed = JSON.parse(text);
+          const incoming = Array.isArray(parsed) ? parsed : parsed.products;
+          if (!Array.isArray(incoming)) throw new Error("products 배열이 없습니다.");
+          const restored = incoming.map(normalizeProduct).filter((product) => product.fullName);
+          if (!confirm("현재 저장된 상품을 " + restored.length + "개 상품으로 교체할까요?")) return;
+          state.products = restored;
+          state.flash.id = null;
+          state.quiz.id = null;
+          persistProducts();
+          renderAll();
+          await replaceSupabaseProducts(restored, "JSON 복원 데이터는 localStorage에 저장됐지만 Supabase 교체에 실패했습니다.");
+          showToast("JSON을 복원했습니다.");
+          showView("list");
+        } catch (error) {
+          console.warn(error);
+          alert("JSON 형식을 확인해 주세요.");
+        }
+      }
+
+      async function clearAllProducts() {
+        if (!state.products.length) {
+          showToast("삭제할 상품이 없습니다.");
+          return;
+        }
+        if (!confirm("모든 상품을 삭제할까요? JSON 백업 후 진행하는 것을 권장합니다.")) return;
+        state.products = [];
+        state.flash.id = null;
+        state.quiz.id = null;
+        persistProducts();
+        renderAll();
+        await clearSupabaseProducts("localStorage는 삭제됐지만 Supabase 전체 삭제에 실패했습니다.");
+        makeJsonText(false);
+        showToast("모든 상품을 삭제했습니다.");
+      }
+
+      function renderImage(src, alt, className) {
+        if (!src) return `<div class="image-missing">사진 없음</div>`;
+        return `<img class="${escapeAttribute(className)}" src="${escapeAttribute(src)}" alt="${escapeAttribute(alt)}" loading="lazy">`;
+      }
+
+      function pickRandom(items, currentId) {
+        if (items.length === 1) return items[0];
+        const candidates = items.filter((item) => item.id !== currentId);
+        return candidates[Math.floor(Math.random() * candidates.length)];
+      }
+
+      function shuffleArray(items) {
+        const shuffled = [...items];
+        for (let index = shuffled.length - 1; index > 0; index -= 1) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+        }
+        return shuffled;
+      }
+
+      function findProduct(id) {
+        return state.products.find((product) => product.id === id);
+      }
+
+      function cleanString(value) {
+        return String(value == null ? "" : value).trim();
+      }
+
+      function createId() {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          return window.crypto.randomUUID();
+        }
+        return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (char) => {
+          const randomValue = Math.random() * 16 | 0;
+          return (Number(char) ^ randomValue & 15 >> Number(char) / 4).toString(16);
+        });
+      }
+
+      function isUuid(value) {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanString(value));
+      }
+
+      function safeHttpUrl(value) {
+        const text = cleanString(value);
+        if (!text) return "";
+        try {
+          const url = new URL(text);
+          return url.protocol === "http:" || url.protocol === "https:" ? url.href : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function escapeAttribute(value) {
+        return escapeHtml(value).replaceAll("`", "&#096;");
+      }
+
+      function showToast(message, duration = 1900) {
+        const toast = $("#toast");
+        toast.textContent = message;
+        toast.classList.add("is-visible");
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), duration);
+      }
+    }());
+  </script>
+</body>
+</html>
