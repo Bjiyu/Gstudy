@@ -478,6 +478,7 @@
     }
 
     .product-card {
+      position: relative;
       display: grid;
       overflow: hidden;
       background: var(--surface);
@@ -490,6 +491,37 @@
 
     .product-card.is-memorized {
       background: #fff9c9;
+    }
+
+    .product-card.is-selectable {
+      cursor: pointer;
+    }
+
+    .product-card.is-selected {
+      border-color: var(--ink);
+      box-shadow: 0 0 0 2px var(--ink);
+    }
+
+    .selection-checkbox {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+    .selection-checkbox input {
+      width: 20px;
+      height: 20px;
+      min-height: 20px;
+      accent-color: var(--ink);
     }
 
     .product-image-wrap {
@@ -1291,6 +1323,22 @@
       font-size: 1.06rem;
     }
 
+    .home-build-info {
+      display: grid;
+      gap: 3px;
+      margin-top: 2px;
+      color: #888888;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .home-build-info p {
+      margin: 0;
+    }
+
     .study-mode-screen {
       display: flex;
       min-height: calc(100vh - 128px - env(safe-area-inset-bottom));
@@ -1359,8 +1407,55 @@
       text-align: center;
     }
 
+    .product-toolbar-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .product-filter-anchor {
+      display: grid;
+      gap: 12px;
+      scroll-margin-top: 12px;
+    }
+
     .filter-bar[hidden] {
       display: none;
+    }
+
+    .selection-bar {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      padding: 12px;
+      border-radius: 18px;
+      background: #f3f3f3;
+      text-align: center;
+    }
+
+    .selection-bar[hidden] {
+      display: none !important;
+    }
+
+    .selection-count {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 900;
+    }
+
+    .selection-actions {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .selection-actions .small-button {
+      min-height: 38px;
+      padding: 0 10px;
+      border-radius: 7px;
+      font-size: 0.78rem;
     }
 
     .manage-intro {
@@ -1429,6 +1524,21 @@
       border-color: var(--line);
     }
 
+    .app-info-box {
+      display: grid;
+      gap: 5px;
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.82rem;
+      font-weight: 800;
+      line-height: 1.55;
+      text-align: left;
+      white-space: pre-wrap;
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -1450,6 +1560,33 @@
     .toast.is-visible {
       opacity: 1;
       transform: translate(-50%, 0);
+    }
+
+    .filter-jump-button {
+      position: fixed;
+      right: 16px;
+      bottom: calc(96px + env(safe-area-inset-bottom));
+      z-index: 18;
+      min-width: 72px;
+      min-height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--surface);
+      font-size: 0.82rem;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+      opacity: 1;
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .filter-jump-button[hidden] {
+      display: none !important;
+    }
+
+    .filter-jump-button:hover {
+      transform: translateY(-1px);
     }
 
     .sr-only {
@@ -1692,6 +1829,10 @@
               <button class="button primary" type="button" data-action="start-study-all">암기 시작</button>
               <button class="button secondary" type="button" data-action="start-study-weak">오답만 복습</button>
             </div>
+            <div class="home-build-info" aria-label="앱 버전">
+              <p id="homeVersionLine">v1.3.0 · BUILD 2026.08.03.1308</p>
+              <p id="homeLastUpdateLine">LAST UPDATE · 2026-08-03 13:08</p>
+            </div>
           </section>
         </div>
       </section>
@@ -1811,93 +1952,109 @@
       </section>
 
       <section class="view" id="view-list" hidden>
-        <div class="product-toolbar">
-          <div>
-            <h2 class="section-title">상품</h2>
-            <p class="count-label" id="listCount">0개 표시</p>
-          </div>
-          <button class="button secondary" type="button" id="toggleFiltersButton" aria-expanded="false" aria-controls="filterPanel">필터</button>
-        </div>
-
-        <div class="filter-bar" id="filterPanel" aria-label="상품 필터" hidden>
-          <div class="field">
-            <label for="sortOrder">정렬</label>
-            <select id="sortOrder">
-              <option value="default">기본순</option>
-              <option value="name-asc">상품명 ㄱ-ㅎ</option>
-              <option value="name-desc">상품명 ㅎ-ㄱ</option>
-              <option value="price-asc">가격 낮은순</option>
-              <option value="price-desc">가격 높은순</option>
-            </select>
+        <section class="product-filter-anchor" id="productFilters" aria-label="상품 필터 영역">
+          <div class="product-toolbar">
+            <div>
+              <h2 class="section-title">상품</h2>
+              <p class="count-label" id="listCount">0개 표시</p>
+            </div>
+            <div class="product-toolbar-actions">
+              <button class="button secondary" type="button" id="toggleFiltersButton" aria-expanded="false" aria-controls="filterPanel">필터</button>
+              <button class="button secondary" type="button" data-action="toggle-selection-mode" id="selectionModeButton" aria-pressed="false">선택 모드</button>
+            </div>
           </div>
 
-          <div class="field">
-            <label for="filterGender">성별</label>
-            <select id="filterGender">
-              <option value="all">전체</option>
-              <option value="Women">Women</option>
-              <option value="Men">Men</option>
-              <option value="Unisex">Unisex</option>
-            </select>
-          </div>
+          <div class="filter-bar" id="filterPanel" aria-label="상품 필터" hidden>
+            <div class="field">
+              <label for="sortOrder">정렬</label>
+              <select id="sortOrder">
+                <option value="default">기본순</option>
+                <option value="name-asc">상품명 ㄱ-ㅎ</option>
+                <option value="name-desc">상품명 ㅎ-ㄱ</option>
+                <option value="price-asc">가격 낮은순</option>
+                <option value="price-desc">가격 높은순</option>
+              </select>
+            </div>
 
-          <div class="field">
-            <label for="filterCategory">카테고리</label>
-            <select id="filterCategory">
-              <option value="all">전체</option>
-              <option value="Bag">Bag</option>
-              <option value="SLG">SLG</option>
-              <option value="Travel">Travel</option>
-              <option value="RTW">RTW</option>
-              <option value="Shoes">Shoes</option>
-              <option value="Jewelry">Jewelry</option>
-              <option value="Watches">Watches</option>
-              <option value="Belt">Belt</option>
-              <option value="Silk">Silk</option>
-              <option value="기타">기타</option>
-            </select>
-          </div>
+            <div class="field">
+              <label for="filterGender">성별</label>
+              <select id="filterGender">
+                <option value="all">전체</option>
+                <option value="Women">Women</option>
+                <option value="Men">Men</option>
+                <option value="Unisex">Unisex</option>
+              </select>
+            </div>
 
-          <div class="field">
-            <label for="filterLine">라인명</label>
-            <select id="filterLine">
-              <option value="all">전체</option>
-            </select>
-          </div>
+            <div class="field">
+              <label for="filterCategory">카테고리</label>
+              <select id="filterCategory">
+                <option value="all">전체</option>
+                <option value="Bag">Bag</option>
+                <option value="SLG">SLG</option>
+                <option value="Travel">Travel</option>
+                <option value="RTW">RTW</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Jewelry">Jewelry</option>
+                <option value="Watches">Watches</option>
+                <option value="Belt">Belt</option>
+                <option value="Silk">Silk</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
 
-          <div class="field" id="filterFunctionGroupField">
-            <label for="filterFunctionGroup">Function Group</label>
-            <select id="filterFunctionGroup">
-              <option value="all">전체</option>
-            </select>
-          </div>
+            <div class="field">
+              <label for="filterLine">라인명</label>
+              <select id="filterLine">
+                <option value="all">전체</option>
+              </select>
+            </div>
 
-          <div class="field" id="filterProductFunctionField">
-            <label for="filterProductFunction">Product Function</label>
-            <select id="filterProductFunction">
-              <option value="all">전체</option>
-            </select>
-          </div>
+            <div class="field" id="filterFunctionGroupField">
+              <label for="filterFunctionGroup">Function Group</label>
+              <select id="filterFunctionGroup">
+                <option value="all">전체</option>
+              </select>
+            </div>
 
-          <div class="field" id="filterJewelrySegmentField">
-            <label for="filterJewelrySegment">Jewelry Segment</label>
-            <select id="filterJewelrySegment">
-              <option value="all">전체</option>
-            </select>
-          </div>
+            <div class="field" id="filterProductFunctionField">
+              <label for="filterProductFunction">Product Function</label>
+              <select id="filterProductFunction">
+                <option value="all">전체</option>
+              </select>
+            </div>
 
-          <div class="field">
-            <label for="filterStatus">암기상태</label>
-            <select id="filterStatus">
-              <option value="all">전체</option>
-              <option value="unstudied">미학습</option>
-              <option value="unknown">모름</option>
-              <option value="unsure">헷갈림</option>
-              <option value="memorized">외움</option>
-            </select>
-          </div>
+            <div class="field" id="filterJewelrySegmentField">
+              <label for="filterJewelrySegment">Jewelry Segment</label>
+              <select id="filterJewelrySegment">
+                <option value="all">전체</option>
+              </select>
+            </div>
 
-          <button class="button secondary" type="button" id="clearFiltersButton">필터 초기화</button>
+            <div class="field">
+              <label for="filterStatus">암기상태</label>
+              <select id="filterStatus">
+                <option value="all">전체</option>
+                <option value="unstudied">미학습</option>
+                <option value="unknown">모름</option>
+                <option value="unsure">헷갈림</option>
+                <option value="memorized">외움</option>
+              </select>
+            </div>
+
+            <button class="button secondary" type="button" id="clearFiltersButton">필터 초기화</button>
+          </div>
+        </section>
+
+        <div class="selection-bar" id="selectionBar" hidden>
+          <div class="selection-count" id="selectionCount">0개 선택</div>
+          <div class="selection-actions">
+            <button class="small-button" type="button" data-action="select-visible-products" id="selectVisibleButton">전체 선택</button>
+            <button class="small-button" type="button" data-action="clear-product-selection" id="clearSelectionButton">선택 해제</button>
+            <button class="small-button danger" type="button" data-action="delete-selected-products" id="deleteSelectedButton">선택 삭제</button>
+            <button class="small-button danger" type="button" data-action="delete-filtered-products" id="deleteFilteredButton">현재 필터 결과 삭제</button>
+            <button class="small-button" type="button" data-action="exit-selection-mode">선택 모드 종료</button>
+          </div>
         </div>
 
         <div class="product-grid" id="productList"></div>
@@ -2065,7 +2222,7 @@
               <button class="button secondary" type="button" id="makeJsonButton">JSON 만들기</button>
               <label class="button secondary" for="importJsonFile">JSON 파일 선택</label>
               <input class="sr-only" id="importJsonFile" type="file" accept="application/json,.json">
-              <button class="button danger" type="button" id="clearAllButton">전체 삭제</button>
+              <button class="button danger" type="button" id="clearAllButton">전체 상품 삭제</button>
             </div>
 
             <div class="field">
@@ -2148,6 +2305,12 @@
         </div>
       </section>
 
+      <section class="view" id="view-app-info" hidden>
+        <div class="panel">
+          <div class="app-info-box" id="appInfoText">APP_NAME: GUCCI STUDY</div>
+        </div>
+      </section>
+
       <section class="view" id="view-manage" hidden>
         <div class="manage-intro">
           <h2>관리</h2>
@@ -2158,6 +2321,7 @@
     </main>
   </div>
 
+  <button class="filter-jump-button" type="button" id="filterJumpButton" hidden>필터 ↑</button>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2165,6 +2329,9 @@
     (function () {
       "use strict";
 
+      const APP_VERSION = "v1.3.0";
+      const BUILD_ID = "2026.08.03.1308";
+      const LAST_UPDATE = "2026-08-03 13:08";
       const STORAGE_KEY = "gucci-product-memory-v1";
       const SUPABASE_CONFIG_KEY = "gucci-product-memory-supabase-config-v1";
       const STATUS_META = {
@@ -2213,6 +2380,8 @@
         lastAutoProductFunction: "",
         lastAutoJewelrySegment: "",
         studyMode: "select",
+        selectionMode: false,
+        selectedProductIds: new Set(),
         flash: { id: null, revealed: false, options: [], selectedIndex: -1, correct: false, frontOnly: false },
         quiz: { id: null, revealed: false, selectedPrice: 0, options: [] },
         sync: {
@@ -2242,6 +2411,7 @@
         loadSupabaseSettings();
         initializeSupabaseClient();
         setupManageAccordion();
+        renderAppInfo();
         bindEvents();
         await refreshSupabaseSessionState(false);
         renderSyncPanel();
@@ -2294,6 +2464,7 @@
 
         $("#clearFiltersButton").addEventListener("click", clearFilters);
         $("#toggleFiltersButton").addEventListener("click", toggleFilterPanel);
+        $("#filterJumpButton").addEventListener("click", scrollToProductFilters);
         $("#flashNextButton").addEventListener("click", () => drawFlashCard());
         $("#flashPool").addEventListener("change", () => drawFlashCard());
         $("#quizNextButton").addEventListener("click", () => drawQuizCard());
@@ -2327,6 +2498,8 @@
         $("#supabaseSql").textContent = buildSupabaseSql();
 
         document.addEventListener("click", handleDocumentClick);
+        window.addEventListener("scroll", updateFilterJumpButton, { passive: true });
+        window.addEventListener("resize", updateFilterJumpButton);
         window.addEventListener("hashchange", () => showView(getInitialView(), false));
       }
 
@@ -2363,7 +2536,8 @@
           { id: "view-register", key: "register", title: "상품 수동등록" },
           { id: "view-bulk", key: "bulk", title: "대량등록 / 북마클릿" },
           { id: "view-backup", key: "backup", title: "JSON 가져오기 / 백업" },
-          { id: "view-sync", key: "sync", title: "Supabase / SQL 안내" }
+          { id: "view-sync", key: "sync", title: "Supabase / SQL 안내" },
+          { id: "view-app-info", key: "app-info", title: "앱 정보" }
         ].forEach(addSection);
 
         addSection({ node: $(".backup-notice"), key: "system", title: "시스템 정보" });
@@ -2382,6 +2556,9 @@
           bulk: "bulk",
           backup: "backup",
           sync: "sync",
+          app: "app-info",
+          info: "app-info",
+          "app-info": "app-info",
           system: "system"
         }[sectionKey] || "";
         if (!normalizedKey) return;
@@ -2390,6 +2567,29 @@
         if (!section) return;
         section.open = true;
         section.scrollIntoView({ block: "start", behavior: "smooth" });
+      }
+
+      function renderAppInfo() {
+        const homeVersionLine = $("#homeVersionLine");
+        const homeLastUpdateLine = $("#homeLastUpdateLine");
+        const appInfoText = $("#appInfoText");
+
+        if (homeVersionLine) {
+          homeVersionLine.textContent = APP_VERSION + " · BUILD " + BUILD_ID;
+        }
+        if (homeLastUpdateLine) {
+          homeLastUpdateLine.textContent = "LAST UPDATE · " + LAST_UPDATE;
+        }
+        if (appInfoText) {
+          appInfoText.textContent = [
+            "APP_NAME: GUCCI STUDY",
+            "VERSION: " + APP_VERSION,
+            "BUILD: " + BUILD_ID,
+            "LAST_UPDATE: " + LAST_UPDATE,
+            "STORAGE: localStorage + Supabase",
+            "MODE: PRIVATE STUDY TOOL"
+          ].join("\n");
+        }
       }
 
       function setupPwaMetadata() {
@@ -3049,6 +3249,47 @@
         }
       }
 
+      async function deleteProductsFromSupabase(products, warningMessage) {
+        if (!canUseSupabase()) return true;
+        const client = getSupabaseClientOrWarn();
+        if (!client) return false;
+        const contextProducts = Array.isArray(products) ? products : [];
+        try {
+          const userId = await requireSupabaseUserId();
+          const uuidIds = Array.from(new Set(contextProducts.map((product) => cleanString(product.id)).filter(isUuid)));
+          const keyProducts = contextProducts.filter((product) => !isUuid(product.id));
+          const productKeys = Array.from(new Set(keyProducts.map((product) => cleanString(product.productKey || makeProductKey(product))).filter(Boolean)));
+
+          if (uuidIds.length) {
+            const { error } = await client
+              .from("products")
+              .delete()
+              .eq("user_id", userId)
+              .in("id", uuidIds);
+            if (error) throw error;
+          }
+
+          if (productKeys.length) {
+            const { error } = await client
+              .from("products")
+              .delete()
+              .eq("user_id", userId)
+              .in("product_key", productKeys);
+            if (error) throw error;
+          }
+
+          markSupabaseSynced();
+          return true;
+        } catch (error) {
+          warnSyncFailure(warningMessage || "Supabase 선택 삭제에 실패했습니다.", error, {
+            products: contextProducts,
+            operation: "products delete",
+            userId: state.sync.userId
+          });
+          return false;
+        }
+      }
+
       async function replaceSupabaseProducts(products, warningMessage) {
         if (!canUseSupabase()) return true;
         try {
@@ -3442,6 +3683,21 @@ using (auth.uid() = user_id);`;
           $("#bookmarkletCode").textContent = buildBookmarkletCode();
           openManageSection(requestedView);
         }
+        updateFilterJumpButton();
+      }
+
+      function updateFilterJumpButton() {
+        const button = $("#filterJumpButton");
+        if (!button) return;
+        const isProductsView = document.body.dataset.activeView === "products";
+        button.hidden = !(isProductsView && window.scrollY > 360);
+      }
+
+      function scrollToProductFilters() {
+        document.getElementById("productFilters")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }
 
       function showStudyMode(mode = "select") {
@@ -3709,12 +3965,74 @@ using (auth.uid() = user_id);`;
         if (!product) return;
         if (!confirm("이 상품을 삭제할까요?")) return;
         state.products = state.products.filter((item) => item.id !== id);
+        state.selectedProductIds.delete(id);
         if (state.flash.id === id) state.flash.id = null;
         if (state.quiz.id === id) state.quiz.id = null;
         persistProducts();
         renderAll();
         await deleteProductFromSupabase(product, "상품은 localStorage에서 삭제됐지만 Supabase 삭제에 실패했습니다.");
         showToast("상품을 삭제했습니다.");
+      }
+
+      function setSelectionMode(enabled) {
+        state.selectionMode = Boolean(enabled);
+        if (!state.selectionMode) state.selectedProductIds.clear();
+        renderList();
+      }
+
+      function toggleProductSelection(id) {
+        const productId = cleanString(id);
+        if (!productId) return;
+        if (state.selectedProductIds.has(productId)) {
+          state.selectedProductIds.delete(productId);
+        } else {
+          state.selectedProductIds.add(productId);
+        }
+        renderList();
+      }
+
+      function clearProductSelection() {
+        state.selectedProductIds.clear();
+        renderList();
+      }
+
+      function selectVisibleProducts() {
+        getFilteredProducts().forEach((product) => state.selectedProductIds.add(product.id));
+        renderList();
+      }
+
+      async function deleteSelectedProducts() {
+        const visibleIds = new Set(getFilteredProducts().map((product) => product.id));
+        const products = state.products.filter((product) => state.selectedProductIds.has(product.id) && visibleIds.has(product.id));
+        if (!products.length) {
+          showToast("선택된 상품이 없습니다.");
+          return;
+        }
+        if (!confirm("선택한 " + products.length + "개 상품을 삭제할까요? 이 작업은 되돌릴 수 없습니다.\n\n삭제 전 JSON 백업을 권장합니다.")) return;
+        await deleteProductsBatch(products, "선택 상품은 localStorage에서 삭제됐지만 Supabase 삭제에 실패했습니다.");
+      }
+
+      async function deleteFilteredProducts() {
+        const products = getFilteredProducts();
+        if (!products.length) {
+          showToast("현재 필터 결과에 삭제할 상품이 없습니다.");
+          return;
+        }
+        if (!confirm("현재 필터 결과 " + products.length + "개 상품을 모두 삭제할까요? 이 작업은 되돌릴 수 없습니다.\n\n삭제 전 JSON 백업을 권장합니다.")) return;
+        await deleteProductsBatch(products, "필터 결과 상품은 localStorage에서 삭제됐지만 Supabase 삭제에 실패했습니다.");
+      }
+
+      async function deleteProductsBatch(products, warningMessage) {
+        const deleteIds = new Set(products.map((product) => product.id).filter(Boolean));
+        if (!deleteIds.size) return;
+        state.products = state.products.filter((product) => !deleteIds.has(product.id));
+        deleteIds.forEach((id) => state.selectedProductIds.delete(id));
+        if (deleteIds.has(state.flash.id)) state.flash.id = null;
+        if (deleteIds.has(state.quiz.id)) state.quiz.id = null;
+        persistProducts();
+        renderAll();
+        const syncOk = await deleteProductsFromSupabase(products, warningMessage);
+        showToast(products.length + "개 상품을 삭제했습니다." + (syncOk ? "" : " Supabase 삭제는 확인이 필요합니다."));
       }
 
       async function handleDocumentClick(event) {
@@ -3726,11 +4044,46 @@ using (auth.uid() = user_id);`;
         }
 
         const actionTarget = event.target.closest("[data-action]");
-        if (!actionTarget) return;
+        if (!actionTarget) {
+          const selectableCard = event.target.closest("[data-selectable-card]");
+          const interactiveTarget = event.target.closest("a, button, input, label, select, textarea, summary, details, [data-memory-menu]");
+          if (state.selectionMode && selectableCard && !interactiveTarget) {
+            toggleProductSelection(selectableCard.dataset.id);
+          }
+          return;
+        }
 
         const action = actionTarget.dataset.action;
         const id = actionTarget.dataset.id;
 
+        if (action === "toggle-selection-mode") {
+          setSelectionMode(!state.selectionMode);
+          return;
+        }
+        if (action === "exit-selection-mode") {
+          setSelectionMode(false);
+          return;
+        }
+        if (action === "toggle-select-product") {
+          toggleProductSelection(id);
+          return;
+        }
+        if (action === "select-visible-products") {
+          selectVisibleProducts();
+          return;
+        }
+        if (action === "clear-product-selection") {
+          clearProductSelection();
+          return;
+        }
+        if (action === "delete-selected-products") {
+          await deleteSelectedProducts();
+          return;
+        }
+        if (action === "delete-filtered-products") {
+          await deleteFilteredProducts();
+          return;
+        }
         if (action === "start-study-all") {
           startStudyMode("flash", "all");
           return;
@@ -3873,6 +4226,7 @@ using (auth.uid() = user_id);`;
       function renderList() {
         const list = $("#productList");
         const products = getFilteredProducts();
+        renderSelectionControls(products);
         $("#listCount").textContent = products.length + "개 표시";
         if (!products.length) {
           list.innerHTML = `<div class="empty-state">표시할 상품이 없습니다.</div>`;
@@ -3894,13 +4248,49 @@ using (auth.uid() = user_id);`;
         wrongList.innerHTML = wrong.map((product) => renderProductCard(product, "wrong")).join("");
       }
 
+      function renderSelectionControls(visibleProducts = getFilteredProducts()) {
+        const bar = $("#selectionBar");
+        const modeButton = $("#selectionModeButton");
+        const count = $("#selectionCount");
+        if (!bar || !modeButton || !count) return;
+
+        if (state.selectionMode) {
+          const visibleIds = new Set(visibleProducts.map((product) => product.id));
+          Array.from(state.selectedProductIds).forEach((id) => {
+            if (!visibleIds.has(id)) state.selectedProductIds.delete(id);
+          });
+        }
+
+        const selectedCount = state.selectedProductIds.size;
+        bar.hidden = !state.selectionMode;
+        modeButton.setAttribute("aria-pressed", String(state.selectionMode));
+        modeButton.textContent = state.selectionMode ? "선택 중" : "선택 모드";
+        count.textContent = selectedCount + "개 선택 · 현재 화면 " + visibleProducts.length + "개";
+
+        const hasVisible = visibleProducts.length > 0;
+        const hasSelected = selectedCount > 0;
+        setButtonDisabled("#selectVisibleButton", !hasVisible);
+        setButtonDisabled("#clearSelectionButton", !hasSelected);
+        setButtonDisabled("#deleteSelectedButton", !hasSelected);
+        setButtonDisabled("#deleteFilteredButton", !hasVisible);
+      }
+
       function renderProductCard(product, context = "list") {
         const url = safeHttpUrl(product.url);
         const displayPrice = getDisplayPrice(product);
         const title = getProductDisplayTitle(product);
         const memorizedClass = product.status === "memorized" ? " is-memorized" : "";
+        const isListSelectionMode = context === "list" && state.selectionMode;
+        const selectedClass = isListSelectionMode && state.selectedProductIds.has(product.id) ? " is-selected" : "";
+        const selectableClass = isListSelectionMode ? " is-selectable" : "";
         return `
-          <article class="product-card${memorizedClass}">
+          <article class="product-card${memorizedClass}${selectableClass}${selectedClass}" ${isListSelectionMode ? `data-selectable-card data-id="${escapeAttribute(product.id)}"` : ""}>
+            ${isListSelectionMode ? `
+              <label class="selection-checkbox" data-selection-control>
+                <input type="checkbox" data-action="toggle-select-product" data-id="${escapeAttribute(product.id)}" ${state.selectedProductIds.has(product.id) ? "checked" : ""}>
+                <span class="sr-only">${escapeHtml(title)} 선택</span>
+              </label>
+            ` : ""}
             <div class="product-image-wrap">
               ${renderImage(product.image, title, "product-image")}
             </div>
@@ -5585,15 +5975,27 @@ using (auth.uid() = user_id);`;
           showToast("삭제할 상품이 없습니다.");
           return;
         }
-        if (!confirm("모든 상품을 삭제할까요? JSON 백업 후 진행하는 것을 권장합니다.")) return;
+        if (!confirm("전체 상품을 삭제할까요?\n\n삭제 전 JSON 백업을 권장합니다.")) return;
+        const typed = prompt("정말 삭제하려면 DELETE를 입력하세요.\n\n삭제 전 JSON 백업을 권장합니다.");
+        if (typed !== "DELETE") {
+          showToast("전체 상품 삭제를 취소했습니다.");
+          return;
+        }
         state.products = [];
+        state.selectedProductIds.clear();
+        state.selectionMode = false;
         state.flash.id = null;
         state.quiz.id = null;
         persistProducts();
         renderAll();
-        await clearSupabaseProducts("localStorage는 삭제됐지만 Supabase 전체 삭제에 실패했습니다.");
+        let syncOk = true;
+        try {
+          syncOk = await clearSupabaseProducts("localStorage는 삭제됐지만 Supabase 전체 삭제에 실패했습니다.");
+        } catch (error) {
+          syncOk = false;
+        }
         makeJsonText(false);
-        showToast("모든 상품을 삭제했습니다.");
+        showToast("모든 상품을 삭제했습니다." + (syncOk ? "" : " Supabase 삭제는 확인이 필요합니다."));
       }
 
       function renderImage(src, alt, className) {
@@ -5618,6 +6020,13 @@ using (auth.uid() = user_id);`;
 
       function findProduct(id) {
         return state.products.find((product) => product.id === id);
+      }
+
+      function setButtonDisabled(selector, disabled) {
+        const button = $(selector);
+        if (!button) return;
+        button.disabled = Boolean(disabled);
+        button.setAttribute("aria-disabled", String(Boolean(disabled)));
       }
 
       function cleanString(value) {
