@@ -795,17 +795,25 @@
     .study-card,
     .quiz-card {
       overflow: hidden;
+      width: min(92vw, 640px);
+      max-width: 640px;
+      min-width: 0;
+      margin: 0 auto;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--surface);
       box-shadow: var(--shadow);
+      box-sizing: border-box;
     }
 
     .study-image-frame {
       display: grid;
       place-items: center;
+      width: 100%;
+      min-width: 0;
       min-height: 430px;
       background: var(--surface-strong);
+      box-sizing: border-box;
     }
 
     .large-study-image {
@@ -816,18 +824,24 @@
     .study-body {
       display: grid;
       gap: 13px;
+      width: 100%;
+      min-width: 0;
       padding: 16px;
+      box-sizing: border-box;
     }
 
     .answer-box {
       display: grid;
       gap: 10px;
+      width: 100%;
+      min-width: 0;
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--surface);
       justify-items: center;
       text-align: center;
+      box-sizing: border-box;
     }
 
     .answer-box[hidden] {
@@ -874,9 +888,12 @@
 
     .flash-card-inner {
       position: relative;
+      width: 100%;
+      min-width: 0;
       min-height: min(62vh, 560px);
       transform-style: preserve-3d;
       transition: transform 0.42s ease;
+      box-sizing: border-box;
     }
 
     .flash-card.is-flipped .flash-card-inner {
@@ -892,12 +909,21 @@
       inset: 0;
       display: grid;
       place-items: center;
-      overflow: hidden;
+      overflow: visible;
+      width: 100%;
+      min-width: 0;
+      height: 100%;
       border: 1px solid var(--line);
       border-radius: 28px;
       background: var(--surface);
       backface-visibility: hidden;
+      transform-style: preserve-3d;
       box-shadow: var(--shadow);
+      box-sizing: border-box;
+    }
+
+    .flash-front {
+      overflow: hidden;
     }
 
     .flash-front .large-study-image {
@@ -913,6 +939,14 @@
       display: grid;
       gap: 18px;
       justify-items: center;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      text-align: center;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      box-sizing: border-box;
     }
 
     .flash-result {
@@ -934,7 +968,11 @@
       display: grid;
       gap: 6px;
       justify-items: center;
+      max-width: 100%;
       font-weight: 900;
+      white-space: normal;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
     }
 
     .flash-price strong {
@@ -972,7 +1010,7 @@
     .study-next {
       display: grid;
       width: min(440px, 100%);
-      margin: 12px auto 0;
+      margin: 12px auto 88px;
     }
 
     .backup-notice {
@@ -1666,6 +1704,76 @@
 
       .sync-actions {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      #view-flash {
+        min-height: calc(100vh - 120px);
+        padding: 16px 0 calc(120px + env(safe-area-inset-bottom));
+        justify-items: center;
+        box-sizing: border-box;
+      }
+
+      .study-panel {
+        width: 100%;
+        min-width: 0;
+        align-items: center;
+      }
+
+      .study-card,
+      .quiz-card {
+        width: 92vw;
+        max-width: 92vw;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .flash-card-inner,
+      .flash-face,
+      .study-image-frame,
+      .study-body,
+      .answer-box {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .flash-back,
+      .flash-front {
+        padding: 20px 16px;
+      }
+
+      .flash-front {
+        padding: 0;
+      }
+
+      .answer-title,
+      .quiz-product-name,
+      .price-quiz-product-name {
+        max-width: 100%;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+        font-size: clamp(14px, 4vw, 20px);
+        line-height: 1.35;
+        text-align: center;
+      }
+
+      .flash-price strong {
+        font-size: clamp(1.15rem, 5vw, 1.5rem);
+      }
+
+      .study-options,
+      .study-next {
+        width: 92vw;
+        max-width: 92vw;
+      }
+
+      .study-next {
+        margin-bottom: calc(96px + env(safe-area-inset-bottom));
       }
     }
 
