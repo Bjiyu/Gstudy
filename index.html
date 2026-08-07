@@ -2341,6 +2341,8 @@
             <div class="actions">
               <button class="button primary" type="button" id="restoreJsonButton">복원</button>
             </div>
+
+            <div class="bulk-result" id="jsonResult">JSON 가져오기 결과가 여기에 표시됩니다.</div>
           </div>
         </div>
       </section>
@@ -3471,7 +3473,7 @@
 
       function toDbProduct(product, userId = state.sync.userId, dbColumns = DB_PRODUCT_COLUMNS) {
         const normalized = normalizeProduct(product);
-        const productKey = normalized.productKey || makeProductKey(normalized);
+        const productKey = makeProductKey(normalized) || normalized.productKey;
         const row = {
           id: normalized.id,
           user_id: userId,
@@ -4998,7 +5000,7 @@ using (auth.uid() = user_id);`;
         const merged = await mergeProductBatch(parsed.products);
         renderBulkResult(parsed, merged);
         if (merged.added > 0 || merged.updated > 0) {
-          showToast("신규 " + merged.added + "개 · 업데이트 " + merged.updated + "개 처리했습니다.");
+          showToast(formatMergeResultText(merged) + " 처리했습니다.");
         } else {
           showToast("새로 등록된 상품이 없습니다.");
         }
@@ -5329,10 +5331,17 @@ using (auth.uid() = user_id);`;
       }
 
       function mergeProductWithStats(existing, incoming) {
-        const merged = normalizeProduct({ ...existing });
+        const existingProduct = normalizeProduct({ ...existing });
+        const merged = { ...existingProduct };
         let changed = false;
         const incomingPrice = getDisplayPrice(incoming);
         const existingPrice = getDisplayPrice(merged);
+        const preserved = {
+          status: existingProduct.status,
+          wrongCount: existingProduct.wrongCount,
+          correctCount: existingProduct.correctCount,
+          memo: existingProduct.memo
+        };
 
         if (incomingPrice && incomingPrice !== existingPrice) {
           merged.originalPrice = incomingPrice;
@@ -5356,7 +5365,7 @@ using (auth.uid() = user_id);`;
           merged.url = incoming.url;
           changed = true;
         }
-        if (!merged.line && incoming.line) {
+        if (!merged.userEditedLine && isWeakLineValue(merged.line) && isUsefulLineValue(incoming.line)) {
           merged.line = incoming.line;
           changed = true;
         }
@@ -5396,7 +5405,8 @@ using (auth.uid() = user_id);`;
           merged.jewelrySegment = incoming.jewelrySegment;
           changed = true;
         }
-        merged.productKey = makeProductKey(merged) || existing.productKey || incoming.productKey;
+        Object.assign(merged, preserved);
+        merged.productKey = makeProductKey({ ...merged, productKey: "" }) || makeProductKey(merged) || existing.productKey || incoming.productKey;
         if (!changed) return { product: existing, changed: false, priceChanged: false };
         merged.updatedAt = new Date().toISOString();
         return { product: merged, changed: true, priceChanged: false };
@@ -5408,7 +5418,7 @@ using (auth.uid() = user_id);`;
         }).join("");
         let html = `<div><strong>${escapeHtml(parsed.sourceLabel)}</strong> 형식으로 ${parsed.products.length}개 상품을 파싱했습니다.</div>`;
         if (merged) {
-          html += `<div>${isPreview ? "미리보기: " : ""}<strong>신규 ${merged.added}</strong>개 · 업데이트 ${merged.updated || 0}개 · 중복무시 ${merged.ignored || 0}개 · 제외 ${merged.invalid + parsed.invalid}개</div>`;
+          html += `<div>${isPreview ? "미리보기: " : ""}${formatMergeResultHtml(merged)} · 제외 ${merged.invalid + parsed.invalid}개</div>`;
           if (merged.error) html += `<div>브라우저 저장 공간 문제로 등록하지 못했습니다.</div>`;
           if (merged.syncError) html += `<div>Supabase 저장에 실패했습니다. localStorage에는 남아 있습니다.</div>`;
         } else if (parsed.invalid) {
@@ -5421,6 +5431,33 @@ using (auth.uid() = user_id);`;
           html += `<ol class="mini-list">${sample}</ol>`;
         }
         $("#bulkResult").innerHTML = html;
+      }
+
+      function formatMergeResultText(merged) {
+        return [
+          "신규 추가 " + (merged.added || 0) + "개",
+          "기존 상품 업데이트 " + (merged.updated || 0) + "개",
+          "완전 중복 무시 " + (merged.ignored || 0) + "개"
+        ].join(" · ");
+      }
+
+      function formatMergeResultHtml(merged) {
+        return [
+          "<strong>신규 추가 " + (merged.added || 0) + "</strong>개",
+          "기존 상품 업데이트 " + (merged.updated || 0) + "개",
+          "완전 중복 무시 " + (merged.ignored || 0) + "개"
+        ].join(" · ");
+      }
+
+      function renderJsonImportResult(merged, parsedCount, invalidCount = 0) {
+        const target = $("#jsonResult");
+        if (!target) return;
+        target.innerHTML = [
+          `<div><strong>JSON</strong> 상품 ${parsedCount || 0}개를 확인했습니다.</div>`,
+          `<div>${formatMergeResultHtml(merged)}</div>`,
+          `<div>제외 ${(merged.invalid || 0) + invalidCount}개${merged.dedupedExisting ? " · 기존 중복 정리 " + merged.dedupedExisting + "개" : ""}</div>`,
+          merged.syncError ? "<div>Supabase 저장에 실패했습니다. localStorage에는 남아 있습니다.</div>" : ""
+        ].filter(Boolean).join("");
       }
 
       function isPriceLine(line) {
@@ -5513,14 +5550,18 @@ using (auth.uid() = user_id);`;
       function makeProductKeyCandidates(product) {
         const source = product || {};
         const url = normalizeUrl(firstFilled(source.url, source.productUrl, source.product_url));
-        const code = normalizeText(firstFilled(source.sku, source.SKU, source.productCode, source.product_code, source.code));
-        const name = normalizeText(firstFilled(source.fullName, source.full_name, source.name, source.productName, source.product_name));
-        const fallback = [source.gender, source.category, source.line, name].map(normalizeText).filter(Boolean).join("|");
+        const explicitKey = normalizeProductKey(firstFilled(source.productKey, source.product_key));
+        const fullName = normalizeText(firstFilled(source.fullName, source.full_name, source.productName, source.product_name, source.name));
+        const fallback = [fullName, source.category, source.gender].map(normalizeText).filter(Boolean).join("|");
         return Array.from(new Set([
           url ? "url:" + url : "",
-          code ? "code:" + code : "",
+          explicitKey || "",
           fallback ? "text:" + fallback : ""
         ].filter(Boolean)));
+      }
+
+      function normalizeProductKey(value) {
+        return cleanString(value).normalize("NFKC").toLowerCase();
       }
 
       function copyBookmarkletCode() {
@@ -5829,6 +5870,15 @@ using (auth.uid() = user_id);`;
         return !isWeakFunctionValue(value);
       }
 
+      function isWeakLineValue(value) {
+        const text = cleanString(value);
+        return !text || text === "기타" || text === "라인 없음";
+      }
+
+      function isUsefulLineValue(value) {
+        return !isWeakLineValue(value);
+      }
+
       function isWeakJewelrySegment(value) {
         const text = cleanString(value);
         return !text || text === "미분류";
@@ -6066,14 +6116,18 @@ using (auth.uid() = user_id);`;
           const incoming = Array.isArray(parsed) ? parsed : parsed.products;
           if (!Array.isArray(incoming)) throw new Error("products 배열이 없습니다.");
           const restored = incoming.map(normalizeProduct).filter((product) => product.fullName);
+          const invalidCount = incoming.length - restored.length;
           if (!confirm("현재 저장된 상품에 JSON 상품 " + restored.length + "개를 병합할까요? 같은 상품은 가격과 빈 정보만 업데이트됩니다.")) return;
           const merged = await importProductsWithMerge(restored, {
             warningMessage: "JSON 가져오기 데이터는 localStorage에 저장됐지만 Supabase 저장에 실패했습니다."
           });
-          showToast("JSON 병합 완료: 신규 " + merged.added + "개 · 업데이트 " + merged.updated + "개");
+          renderJsonImportResult(merged, restored.length, invalidCount);
+          showToast("JSON 가져오기 완료: " + formatMergeResultText(merged));
           showView("list");
         } catch (error) {
           console.warn(error);
+          const result = $("#jsonResult");
+          if (result) result.textContent = "JSON 형식을 확인해 주세요.";
           alert("JSON 형식을 확인해 주세요.");
         }
       }
